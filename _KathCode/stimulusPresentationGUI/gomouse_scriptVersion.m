@@ -45,7 +45,7 @@ else
     zeroPad=[];
 end
 
-nChunks = (sum(stimDur)+length(zeroPad))/nc.fs;
+nChunks = (sum(stimDur)+length(zeroPad))/nc.fs; % grand stimulus chunk count
 
 % Add trigger to start recording
 triggerDuration = 0.1*nc.fs; % in samples
