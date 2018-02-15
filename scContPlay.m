@@ -2,7 +2,7 @@ clear all
 close all
 
 % specify file name
-files = dir('*noise.wav');
+files = dir('noise-60min.wav');
 fs = 192e3;
 
 % chunk duration (how much data is added at a time)
@@ -32,13 +32,17 @@ InitializePsychSound(1);
 % end
 
 
+%% this all takes too long
+% Loading sound file noise-60min.wav... Elapsed time is 360.421934 seconds.
+% Adding to buffer...Elapsed time is 327.598300 seconds.
+
 % get the Lynx soundcard
 d = PsychPortAudio('GetDevices');
 ind = find(strcmp({d.DeviceName},'ASIO Lynx'));
 devID = d(ind).DeviceIndex;
 
 % open the card
-s = PsychPortAudio('Open',devID,1,3,fs,1,[],[],0);
+s = PsychPortAudio('Open',devID,1,3,fs,2,[],[],[1 2]);
 status = PsychPortAudio('GetStatus',s);
 
 fprintf('Loading sound file %s... ',files(1).name);
