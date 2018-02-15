@@ -106,10 +106,10 @@ else
 %      set(handles.text35,'String',['Block ' num2str(nc.blockN-1) ' of ' num2str(nc.nBlocks) ' saved'])
     
     %% NOW ADD IN A NEW FUNCTION, 'PLAYNEXTBLOCK'
-%     if nc.blockN<=nc.nBlocks
-%         playNextBlock(handles);
-%     end
-%     
+    if nc.blockN<=nc.nBlocks
+        playNextBlock(handles);
+    end
+  
 end
 
 

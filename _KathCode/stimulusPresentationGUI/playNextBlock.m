@@ -11,8 +11,12 @@ nc.s = connectToNidaq(nc.fs,chanIn,chanOut);
 set(handles.text35,'String','NIDAQ connected');
 
 % Add the listeners for continuous playback/acquisition
-nc.lh = addlistener(nc.s,'DataRequired',@(src,event)presentStimContNidaq_stimGUI(src,event,handles));
-nc.la = addlistener(nc.s,'DataAvailable',@(src,event)acquireContNidaq_stimGUI(src,event,handles));
+if ~isempty(chanOut)
+    nc.lh = addlistener(nc.s,'DataRequired',@(src,event)presentStimContNidaq_stimGUI(src,event,handles));
+end
+if ~isempty(chanIn)
+    nc.la = addlistener(nc.s,'DataAvailable',@(src,event)acquireContNidaq_stimGUI(src,event,handles));
+end
 nc.s.IsContinuous = true; % set nidaq to continuous mode
 
 % start counters
@@ -28,20 +32,24 @@ nc.nFiles = length(nc.stimFiles);
 nc.stimDur = presInfo.stimDur{nc.blockN};
 nc.preStimSil = presInfo.preStimSil;
 
-% create file
-contents = cellstr(get(handles.listbox5,'String'));
-projectSel = contents{get(handles.listbox5,'Value')}; %#ok<NASGU>
-eval(sprintf('fn = [pm.saveFolder datestr(now,''yymmdd_HHMMSS'') ''_'' pm.mouse ''_'' projectSel ''_block%02d.txt''];',nc.blockN))
-nc.fid = fopen(fn,'a'); % open file for acquired data
-if ~exist(fn,'file')
-    set(handles.text35,'String',['File not opened!!!'])
-    keyboard
+% create acquisition file
+if ~isempty(chanIn)
+    contents = cellstr(get(handles.listbox5,'String'));
+    projectSel = contents{get(handles.listbox5,'Value')}; %#ok<NASGU>
+    eval(sprintf('fn = [pm.saveFolder datestr(now,''yymmdd_HHMMSS'') ''_'' pm.mouse ''_'' projectSel ''_block%02d.txt''];',nc.blockN))
+    nc.fid = fopen(fn,'a'); % open file for acquired data
+    if ~exist(fn,'file')
+        set(handles.text35,'String',['File not opened!!!'])
+        keyboard
+    end
+    set(handles.edit7,'String',fn)
+else
+    set(handles.edit7,'String','No acquisition initiated.')
 end
-set(handles.edit7,'String',fn)
 
 queueOutputData(nc.s,presInfo.triggerAcquisition);
 % Initialise the presentation/acquisition (the listeners take over after
 % triggerAcquisition has been presented
 nc.s.startBackground();
-set(handles.text35,'String',['Presenting block ' num2str(nc.blockN) ' of ' num2str(nc.nBlocks)])
+set(handles.text35,'String',sprintf('Presenting block %02d/%02d',nc.blockN,nc.nBlocks));
 clear presInfo

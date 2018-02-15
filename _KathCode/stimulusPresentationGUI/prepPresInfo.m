@@ -88,10 +88,14 @@ if ~isempty(d)
     [~,chanOut] = getNidaqSettings(handles);
     
     % Add trigger to start recording
-    triggerDuration = 0.1*fs; % in samples
-    presInfo.triggerAcquisition = [zeros(presInfo.preStimSil*fs,1),...
-        [ones(triggerDuration,1)*5;zeros((presInfo.preStimSil*fs)...
-        -triggerDuration,1)]]; % Initial trigger event to the 2P microscope
+    if presInfo.preStimSil > 0
+        triggerDuration = 0.1*fs; % in samples
+        presInfo.triggerAcquisition = [zeros(presInfo.preStimSil*fs,1),...
+            [ones(triggerDuration,1)*5;zeros((presInfo.preStimSil*fs)...
+            -triggerDuration,1)]]; % Initial trigger event to the 2P microscope
+    else
+        presInfo.triggerAcquisition = [];
+    end
     
     if length(chanOut)==3
         pulse = [ones(0.001*fs,1)*3;zeros(0.049*fs,1)]; % 20 Hz frame rate

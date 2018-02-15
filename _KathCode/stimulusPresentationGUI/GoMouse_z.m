@@ -47,11 +47,9 @@ end
 
 %% SET VARIABLES
 global pm
-pm.stimFolder = 'E:\stimuli\';
-pm.mouseFolder = 'C:\data\';
-pm.filterFolder = 'E:\calibration\Filters\';
-addpath('E:\GitHub\Kath\matlabGeneral\')
-
+pm.stimFolder = 'D:\stimuli\';
+pm.mouseFolder = 'D:\data\';
+pm.filterFolder = 'D:\GitHub\filters\';
 
 
 % --- Executes just before GoMouse_z is made visible.
@@ -458,47 +456,14 @@ nc.stimFolder = pm.stimFolder;
 playNextBlock(handles)
 
 
-% %% PRESENT SOUND ONLY
-% function pushbutton23_Callback(hObject, eventdata, handles)
-% clear -global nc
-% global nc pm
-% nc.playbackOnly = 1;
-% nc.blockN = 1;
-% nc.mouse = pm.mouse;
-% nc.stimFolder = pm.stimFolder;
-% 
-% % Connect to the NIDAQ
-% [~,chanOut] = getNidaqSettings(handles);
-% nc.fs = str2double(get(handles.edit9,'String'));
-% set(handles.text35,'String','Connecting to NIDAQ card');
-% nc.s = connectToNidaq(nc.fs,[],chanOut);
-% set(handles.text35,'String','NIDAQ connected');
-% 
-% % Add the listeners for continuous playback/acquisition
-% nc.lh = addlistener(nc.s,'DataRequired',@(src,event)presentStimContNidaq_stimGUI(src,event,handles));
-% nc.la = [];
-% nc.s.IsContinuous = true; % set nidaq to continuous mode
-% 
-% % start counters
-% nc.counter=1;
-% 
-% % Get info about what to present
-% presInfo = prepPresInfo(handles);
-% nc.firstChunk = 1;
-% nc.nBlocks = presInfo.nBlocks;
-% nc.nChunks = presInfo.nChunks(nc.blockN);
-% nc.stimFiles = presInfo.stimFiles(presInfo.blocks==nc.blockN);
-% nc.nFiles = length(nc.stimFiles);
-% nc.stimDur = presInfo.stimDur{nc.blockN};
-% nc.preStimSil = presInfo.preStimSil;
-% 
-% queueOutputData(nc.s,presInfo.triggerAcquisition);
-% % Initialise the presentation/acquisition (the listeners take over after
-% % triggerAcquisition has been presented
-% nc.s.startBackground();
-% set(handles.text35,'String',['Presenting block ' num2str(nc.blockN) ' of ' num2str(nc.nBlocks)])
-% 
-
+%% PRESENT SOUND ONLY
+function pushbutton23_Callback(hObject, eventdata, handles)
+clear -global nc
+global nc pm
+nc.blockN = 1;
+nc.mouse = pm.mouse;
+nc.stimFolder = pm.stimFolder;
+playNextBlock(handles)
 
 
 
@@ -708,8 +673,12 @@ function pushbutton22_Callback(hObject, eventdata, handles)
 global nc
 if ~isempty(nc)
     stop(nc.s);
-    delete(nc.lh);
-    delete(nc.la);
+    if isfield(nc,'lh')
+        delete(nc.lh);
+    end
+    if isfield(nc,'la')
+        delete(nc.la);
+    end
 %     if nc.playbackOnly==0
 %         fclose(nc.fid);
 %         fclose('all');

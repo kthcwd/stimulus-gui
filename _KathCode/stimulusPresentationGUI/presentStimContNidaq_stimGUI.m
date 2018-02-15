@@ -12,7 +12,8 @@ end
 if nc.counter <= nc.nChunks
 %     sprintf('%d/%d\n',nc.counter,nc.nChunks);
     nfc = floor((nc.stimDur(nc.ff)+nc.sv)/nc.fs);
-    disp(nc.jj)
+    str = sprintf('Block %02d/%02d - File %02d/%02d - Chunk %04d/%04d...\n',nc.blockN,nc.nBlocks,nc.ff,nc.nFiles,nc.jj,nfc);
+    fprintf(str);
     if isempty(nc.rm)
         stim = audioread(nc.stimFiles{nc.ff},...
             [((nc.jj-1)*nc.fs+1)-nc.sv,nc.jj*nc.fs-nc.sv]); % read in 1 second chunks
@@ -64,19 +65,23 @@ if nc.counter <= nc.nChunks
 else
     nc.blockN = nc.blockN+1;
     stop(nc.s);
-    delete(nc.lh);
-    delete(nc.la);
-    fclose(nc.fid);
+    if isfield(nc,'lh')
+        delete(nc.lh);
+    elseif isfield(nc,'la')
+        delete(nc.la);
+    elseif isfield(nc,'fid')
+        fclose(nc.fid);
+    end
     fclose('all');
     % save everything
     set(handles.text35,'String',['Saving block ' num2str(nc.blockN)])
     exptInfo.mouse = nc.mouse;
     exptInfo.stimFiles = nc.stimFiles;
-    b = unique(exptInfo.stimFiles);
-    for ii=1:length(b)
-        a = load([b{ii}(1:end-4) '_stimInfo.mat']);
-        exptInfo.stimInfo{ii} = a;%.stimInfo;
-    end
+%     b = unique(exptInfo.stimFiles);
+%     for ii=1:length(b)
+%         a = load([nc.stimFolder '*stimInfo.mat']);
+%         exptInfo.stimInfo{ii} = a;%.stimInfo;
+%     end
     exptInfo.preStimSilence = nc.preStimSil;
     exptInfo.fsStim = nc.fs;
     exptInfo.yaw = nc.yaw;
@@ -90,6 +95,8 @@ else
     
     %% NOW ADD IN A NEW FUNCTION, 'PLAYNEXTBLOCK'
     if nc.blockN<=nc.nBlocks
+        disp('Press enter to start the next block...');
+        pause();
         playNextBlock(handles);
     end
     

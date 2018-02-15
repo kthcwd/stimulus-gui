@@ -21,7 +21,7 @@ for ii=1:length(channelsIn)
     s.Channels(ii+length(channelsOut)).InputType = 'SingleEnded';
 end
 s.ExternalTriggerTimeout = 15;
-%s.NotifyWhenScansQueuedBelow = []; % samples remaining in buffer to
+s.NotifyWhenScansQueuedBelow = fs*.8; % samples remaining in buffer to
 %trigger the next addition to the buffer
 fs_check=s.Rate; % check sample rate
 if fs~=fs_check
