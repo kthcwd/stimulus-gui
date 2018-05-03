@@ -66,6 +66,7 @@ if nc.counter <= nc.nChunks
     
 else
     % wrap up this block
+    
     disp('FINISHED PRESENTING')
     stop(nc.s);
     if isfield(nc,'lh')
@@ -91,15 +92,15 @@ else
     exptInfo.fsStim = nc.fs;
     exptInfo.presParams = nc;
     exptInfo.presDirs = pm;
-    fn = fullfile(saveFolder,[datestr(now,'YYmmdd_HHMMSS') '_exptInfo.mat']);
+    fn = fullfile(pm.saveFolder,[datestr(now,'YYmmdd_HHMMSS') '_exptInfo.mat']);
     save(fn,'exptInfo');
     set(handles.text35,'String',['Block ' num2str(nc.blockN) ' of ' num2str(nc.nBlocks) ' saved'])
-    
+    nc.blockN = nc.blockN+1;
     %% NOW ADD IN A NEW FUNCTION, 'PLAYNEXTBLOCK'
     if nc.blockN<=nc.nBlocks
         disp('Press enter to start the next block...');
         pause();
-        nc.blockN = nc.blockN+1;
+%         nc.blockN = nc.blockN+1;
         playNextBlock(handles);
     end
     
