@@ -42,14 +42,14 @@ ind = find(strcmp({d.DeviceName},'ASIO Lynx'));
 devID = d(ind).DeviceIndex;
 
 % open the card
-s = PsychPortAudio('Open',devID,1,3,fs,2,[],[],[1 2]);
+s = PsychPortAudio('Open',devID,1,3,fs,2,[],[],[0 1]);
 status = PsychPortAudio('GetStatus',s);
 
 fprintf('Loading sound file %s... ',files(1).name);
-tic; y = audioread(files(1).name)'; toc;
-%y = randn(1,fs);
+%tic; y = audioread(files(1).name)'; toc;
+y = randn(2,fs*10);
 fprintf('Adding to buffer...');
-tic; PsychPortAudio('FillBuffer',s,y/500); toc;
+tic; PsychPortAudio('FillBuffer',s,y/100); toc;
 
 % % add to schedule
 % PsychPortAudio('UseSchedule',s, 1);
@@ -64,7 +64,7 @@ status = PsychPortAudio('GetStatus', s);
 while status.Active
     status = PsychPortAudio('GetStatus', s);
     fprintf('%3.2f/%d seconds elapsed\n',status.PositionSecs,length(y)/fs);
-    WaitSecs(10);
+    WaitSecs(1);
 end
     
 
