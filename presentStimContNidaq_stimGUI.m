@@ -83,11 +83,15 @@ else
     % save everything
     exptInfo.mouse = nc.mouse;
     exptInfo.stimFiles = nc.stimFiles;
-    %     b = unique(exptInfo.stimFiles);
-    %     for ii=1:length(b)
-    %         a = load([nc.stimFolder '*stimInfo.mat']);
-    %         exptInfo.stimInfo{ii} = a;%.stimInfo;
-    %     end
+    b = unique(exptInfo.stimFiles);
+    for ii=1:length(b)
+        try
+            a = load([nc.stimFolder '*stimInfo.mat']);
+            exptInfo.stimInfo{ii} = a;%.stimInfo;
+        catch
+            exptInfo.stimInfo{ii} = 'Could not find stimInfo';
+        end
+    end
     exptInfo.preStimSilence = nc.preStimSil;
     exptInfo.fsStim = nc.fs;
     exptInfo.presParams = nc;
@@ -100,7 +104,7 @@ else
     if nc.blockN<=nc.nBlocks
         disp('Press enter to start the next block...');
         pause();
-%         nc.blockN = nc.blockN+1;
+        %         nc.blockN = nc.blockN+1;
         playNextBlock(handles);
     end
     
