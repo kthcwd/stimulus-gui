@@ -627,7 +627,8 @@ set(handles.edit9,'String',GUIdata.fs);
 
 %% ABORT BUTTON
 function pushbutton22_Callback(hObject, eventdata, handles)
-global nc
+global nc pm
+keyboard
 if ~isempty(nc)
     if isfield(nc,'s')
         stop(nc.s);
@@ -637,6 +638,28 @@ if ~isempty(nc)
         if isfield(nc,'la')
             delete(nc.la);
         end
+        
+        % save everything
+        exptInfo.mouse = nc.mouse;
+        exptInfo.stimFiles = nc.stimFiles;
+        b = unique(exptInfo.stimFiles);
+        for ii=1:length(b)
+            try
+                a = load([b{ii}(1:end-4) '_stimInfo.mat']);
+                exptInfo.stimInfo{ii} = a;%.stimInfo;
+            catch
+                exptInfo.stimInfo{ii} = 'Could not find stimInfo';
+            end
+        end
+        exptInfo.preStimSilence = nc.preStimSil;
+        exptInfo.fsStim = nc.fs;
+        exptInfo.presParams = nc;
+        exptInfo.presDirs = pm;
+        exptInfo.status = 'ABORTED'; %#ok<STRNU>
+        fn = fullfile(pm.saveFolder,[datestr(now,'YYmmdd_HHMMSS') '_exptInfo.mat']);
+        save(fn,'exptInfo');
+        set(handles.text35,'String',['Block ' num2str(nc.blockN) ' of ' num2str(nc.nBlocks) ' saved'])
+        
         clear -global nc
         fclose('all');
         set(handles.text35,'String','Presentation aborted, nothing happening now');

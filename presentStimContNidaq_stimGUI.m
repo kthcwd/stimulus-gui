@@ -86,7 +86,7 @@ else
     b = unique(exptInfo.stimFiles);
     for ii=1:length(b)
         try
-            a = load([nc.stimFolder '*stimInfo.mat']);
+            a = load([b{ii}(1:end-4) '_stimInfo.mat']);
             exptInfo.stimInfo{ii} = a;%.stimInfo;
         catch
             exptInfo.stimInfo{ii} = 'Could not find stimInfo';
