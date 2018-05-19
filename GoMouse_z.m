@@ -438,7 +438,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 global pm
-set(hObject,'String',[pm.filterFolder '180501_blueEbooth_NIDAQ_3k-80k_fs200k.mat'])
+set(hObject,'String',[pm.filterFolder '180516_blueAcuteSpeaker_NIDAQ_3k-80k_fs200k.mat'])
 pm.filter = get(hObject,'value');
 
 function edit10_ButtonDownFcn(hObject, eventdata, handles)
