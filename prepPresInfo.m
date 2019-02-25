@@ -14,16 +14,16 @@ global pm nc
 % output channel)
 
 % Get info to save to recording file
-fs = str2double(get(handles.edit9,'String'));
+fs = str2double(get(handles.samplerate,'String'));
 presInfo.fs = fs;
-presInfo.FILT = get(handles.edit10,'String');
+presInfo.FILT = get(handles.filterfile,'String');
 presInfo.mouse = pm.mouse;
 
 
 % Prepare info for presenting the stimuli
-contents = cellstr(get(handles.listbox3,'String'));
+contents = cellstr(get(handles.stimselectlist,'String'));
 sf = strcat(pm.wavFolders,contents);
-d = get(handles.uitable2,'Data');
+d = get(handles.blocktable,'Data');
 if ~iscell(d)
     d = num2cell(d); % blocks and repeats
 end
@@ -51,7 +51,7 @@ if ~isempty(d)
     stimFiles = stimFiles(blockOrder);
     presInfo.blocks = b;
     presInfo.nBlocks = length(unique(b));
-    presInfo.preStimSil = str2double(get(handles.edit4,'String'));
+    presInfo.preStimSil = str2double(get(handles.baselinetime,'String'));
     presInfo.stimFiles = stimFiles;
     
     % Work out how long your recording will be - so we know how many frames to
@@ -61,8 +61,8 @@ if ~isempty(d)
         ind = find(b==bb);
         for ff = 1:length(ind)
             stimInf = audioinfo(stimFiles{ind(ff)});
-            set(handles.edit9,'String',num2str(stimInf.SampleRate))
-            fs = str2double(get(handles.edit9,'String'));
+            set(handles.samplerate,'String',num2str(stimInf.SampleRate))
+            fs = str2double(get(handles.samplerate,'String'));
             presInfo.fs = fs;
             if stimInf.SampleRate~=fs
                 disp('STIM AT WRONG SAMPLE RATE!!')
@@ -100,9 +100,9 @@ if ~isempty(d)
     end
     
     if length(chanOut)==3
-        pulse = [ones(0.001*fs,1)*3;zeros(0.049*fs,1)]; % 20 Hz frame rate
-        dur = round(length(presInfo.triggerAcquisition)/fs);
-        presInfo.triggerAcquisition(:,3) = repmat(pulse,20*dur,1);
+%         pulse = [zeros(0.001*fs,1)*3;zeros(0.049*fs,1)]; % 20 Hz frame rate
+%         dur = round(length(presInfo.triggerAcquisition)/fs);
+        presInfo.triggerAcquisition(:,3) = zeros(length(presInfo.triggerAcquisition),1);
     end
         
     

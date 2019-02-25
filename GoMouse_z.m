@@ -22,7 +22,7 @@ function varargout = GoMouse_z(varargin)
 
 % Edit the above text to modify the response to help GoMouse_z
 
-% Last Modified by GUIDE v2.5 16-Nov-2017 15:36:03
+% Last Modified by GUIDE v2.5 17-Jul-2018 14:44:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -68,7 +68,7 @@ global pm
 guidata(hObject, handles);
 set(hObject,'Name','GoMouse!')
 pm.wavFolders = [];
-set(handles.uitable2,'Data',[])
+set(handles.blocktable,'Data',[])
 
 % UIWAIT makes GoMouse_z wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -92,15 +92,16 @@ varargout{1} = handles.output;
 
 
 %% SELECT YOUR BEAST
-function listbox1_Callback(hObject, eventdata, handles) %#ok<*INUSD>
+function mouselist_Callback(hObject, eventdata, handles) %#ok<*INUSD>
 global pm
 contents = cellstr(get(hObject,'String'));
 pm.mouse = contents{get(hObject,'Value')};
+handles.status.String = sprintf('Mouse selected: %s',pm.mouse);
 pm.saveFolder = [pm.mouseFolder pm.mouse '\'];
 
 
 % POPULATE SELECT YOUR BEAST
-function listbox1_CreateFcn(hObject, eventdata, handles)
+function mouselist_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -110,11 +111,15 @@ f = dir(pm.mouseFolder);
 f(strcmp({f.name},'.'))=[]; f(strcmp({f.name},'..'))=[]; f(strcmp({f.name},'zippedEventTraces'))=[];
 f = {f.name};
 set(hObject,'string',f);
+set(hObject,'Value',length(f));
+contents = cellstr(get(hObject,'String'));
+pm.mouse = contents{get(hObject,'Value')};
+
 
 
 
 %% SELECT FOLDER
-function listbox4_Callback(hObject, eventdata, handles)
+function folderlist_Callback(hObject, eventdata, handles)
 global pm
 contents = cellstr(get(hObject,'String'));
 pm.person = contents{get(hObject,'Value')};
@@ -124,8 +129,9 @@ populateProjectFolderListbox(handles)
 
 
 
+
 % POPULATE SELECT FOLDER
-function listbox4_CreateFcn(hObject, eventdata, handles)
+function folderlist_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -135,45 +141,48 @@ f = dir(pm.stimFolder);
 f(strcmp({f.name},'.'))=[]; f(strcmp({f.name},'..'))=[];
 f = {f.name};
 set(hObject,'string',f);
+hObject.Value = 1;
+contents = cellstr(get(hObject,'String'));
+pm.person = contents{get(hObject,'Value')};
 
 
 
 
 %% SELECT PROJECT FOLDER
-function listbox5_Callback(hObject, eventdata, handles)
+function projectlist_Callback(hObject, eventdata, handles)
 populateSelectStimListbox(handles);
 
 
 % POPULATE PROJECT FOLDER
-function listbox5_CreateFcn(hObject, eventdata, handles)
+function projectlist_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 %% SELECT STIMULI LISTBOX
-function listbox2_Callback(hObject, eventdata, handles)
+function stimlist_Callback(hObject, eventdata, handles)
 
 % POPULATE SELECT STIMULI
-function listbox2_CreateFcn(hObject, eventdata, handles)
+function stimlist_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 %% EDIT BLOCKS NUMBERS
-function uitable2_ButtonDownFcn(hObject, eventdata, handles)
-wavs = cellstr(get(handles.listbox3,'String'));
-d = get(handles.uitable2,'Data');
+function blocktable_ButtonDownFcn(hObject, eventdata, handles)
+wavs = cellstr(get(handles.stimselectlist,'String'));
+d = get(handles.blocktable,'Data');
 editBlockNumbers(wavs,d,handles);
 
 
 %% ADD PUSH BUTTON
-function pushbutton2_Callback(hObject, eventdata, handles)
+function addstim_Callback(hObject, eventdata, handles)
 global pm
-contents = cellstr(get(handles.listbox3,'String'));
-wavSel = get(handles.listbox2,'Value');
-wavsToAdd = cellstr(get(handles.listbox2,'String'));
+contents = cellstr(get(handles.stimselectlist,'String'));
+wavSel = get(handles.stimlist,'Value');
+wavsToAdd = cellstr(get(handles.stimlist,'String'));
 wavsToAdd = wavsToAdd(wavSel);
 if strcmp(contents,'Listbox')
     contents=wavsToAdd;
@@ -181,14 +190,14 @@ else
     contents(length(contents)+1:length(contents)+length(wavsToAdd)) = wavsToAdd;
 end
 %  pm.wavsToPresent
-set(handles.listbox3,'String',contents)
-set(handles.listbox3,'Max',length(contents),'Min',1);
+set(handles.stimselectlist,'String',contents)
+set(handles.stimselectlist,'Max',length(contents),'Min',1);
 for ii=1:length(wavsToAdd)
     pm.wavFolders{length(pm.wavFolders)+1,1} = pm.wavDir;
 end
 % edit block numbers
-d = get(handles.uitable2,'Data');
-a = get(handles.listbox3,'Value');
+d = get(handles.blocktable,'Data');
+a = get(handles.stimselectlist,'Value');
 if ~iscell(d)
     d=num2cell(d);
 end
@@ -197,22 +206,22 @@ if ~isempty(d)
 else
     nd = ones(length(wavsToAdd),2);
 end
-set(handles.uitable2,'Data',nd)
+set(handles.blocktable,'Data',nd)
 
 
 
 %% REMOVE PUSH BUTTON
-function pushbutton3_Callback(hObject, eventdata, handles)
+function removestim_Callback(hObject, eventdata, handles)
 global pm
-contents = cellstr(get(handles.listbox3,'String'));
+contents = cellstr(get(handles.stimselectlist,'String'));
 if length(contents)==1
     contents{1} = 'Listbox';
 else
-    rm = get(handles.listbox3,'Value');
+    rm = get(handles.stimselectlist,'Value');
     if rm(1)-1<1
-        set(handles.listbox3,'Value',1);
+        set(handles.stimselectlist,'Value',1);
     else
-        set(handles.listbox3,'Value',rm(1)-1);
+        set(handles.stimselectlist,'Value',rm(1)-1);
     end
     contents(rm)=[];
     if isempty(contents)
@@ -220,80 +229,80 @@ else
     end
 end
 pm.wavFolders(rm)=[];
-set(handles.listbox3,'String',contents)
-set(handles.listbox3,'Max',length(contents),'Min',1);
+set(handles.stimselectlist,'String',contents) 
+set(handles.stimselectlist,'Max',length(contents),'Min',1);
 
-d = get(handles.uitable2,'Data');
+d = get(handles.blocktable,'Data');
 if ~isempty(d)
     d(rm,:)=[]; nd=d;
 end
-set(handles.uitable2,'Data',nd)
+set(handles.blocktable,'Data',nd)
 
 
 
 
 %% CLEAR ALL PUSH BUTTON
-function pushbutton8_Callback(hObject, eventdata, handles)
+function clearstim_Callback(hObject, eventdata, handles)
 global pm
-set(handles.listbox3,'Value',1)
-set(handles.listbox3,'String','Listbox')
+set(handles.stimselectlist,'Value',1)
+set(handles.stimselectlist,'String','Listbox')
 pm.wavFolders=[];
-set(handles.uitable2,'Data',[]);
+set(handles.blocktable,'Data',[]);
 
 
 
 %% STIMULI SELECTED LISTBOX
-function listbox3_Callback(hObject, eventdata, handles)
+function stimselectlist_Callback(hObject, eventdata, handles)
 % POPULATE STIMULI SELECTED
-function listbox3_CreateFcn(hObject, eventdata, handles)
+function stimselectlist_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 %% MOVE UP PUSH BUTTON
-function pushbutton4_Callback(hObject, eventdata, handles)
+function movestimup_Callback(hObject, eventdata, handles)
 global pm
-contents = cellstr(get(handles.listbox3,'String'));
-mu = get(handles.listbox3,'Value');
-d = get(handles.uitable2,'Data');
+contents = cellstr(get(handles.stimselectlist,'String'));
+mu = get(handles.stimselectlist,'Value');
+d = get(handles.blocktable,'Data');
 if mu~=1
     newContents = [contents(1:mu(1)-2);contents(mu);contents(mu(1)-1);contents(mu(end)+1:end)];
     pm.wavFolders = cat(1,pm.wavFolders(1:mu(1)-2),pm.wavFolders(mu),pm.wavFolders(mu(1)-1),pm.wavFolders(mu(end)+1:end));
     d = cat(1,d(1:mu(1)-2,:),d(mu,:),d(mu(1)-1,:),d(mu(end)+1:end,:));
-    set(handles.listbox3,'String',newContents)
-    set(handles.listbox3,'Value',mu-1)
-    set(handles.uitable2,'Data',d)
+    set(handles.stimselectlist,'String',newContents)
+    set(handles.stimselectlist,'Value',mu-1)
+    set(handles.blocktable,'Data',d)
 end
 
 
 
 %% MOVE DOWN PUSH BUTTON
-function pushbutton5_Callback(hObject, eventdata, handles) %#ok<*INUSL,*DEFNU>
+function movestimdown_Callback(hObject, eventdata, handles) %#ok<*INUSL,*DEFNU>
 global pm
-contents = cellstr(get(handles.listbox3,'String'));
-mu = get(handles.listbox3,'Value');
-d = get(handles.uitable2,'Data');
+contents = cellstr(get(handles.stimselectlist,'String'));
+mu = get(handles.stimselectlist,'Value');
+d = get(handles.blocktable,'Data');
 if mu~=length(contents)
     newContents = [contents(1:mu(1)-1);contents(mu(end)+1);contents(mu);contents(mu(end)+2:end)];
     pm.wavFolders = cat(1,pm.wavFolders(1:mu(1)-1),pm.wavFolders(mu(end)+1),pm.wavFolders(mu),pm.wavFolders(mu(end)+2:end));
     d = cat(1,d(1:mu(1)-1,:),d(mu(end)+1,:),d(mu,:),d(mu(end)+2:end,:));
-    set(handles.listbox3,'String',newContents)
-    set(handles.listbox3,'Value',mu+1)
-    set(handles.uitable2,'Data',d)
+    set(handles.stimselectlist,'String',newContents)
+    set(handles.stimselectlist,'Value',mu+1)
+    set(handles.blocktable,'Data',d)
 end
 
 
 %% RANDOMISE STIMULI ORDER
-function pushbutton12_Callback(hObject, eventdata, handles)
+function randstim_Callback(hObject, eventdata, handles)
 global pm
-contents = cellstr(get(handles.listbox3,'String'));
-d = get(handles.uitable2,'Data');
+contents = cellstr(get(handles.stimselectlist,'String'));
+d = get(handles.blocktable,'Data');
 r = randperm(length(contents));
 contents = contents(r);
 pm.wavFolders = pm.wavFolders(r);
-set(handles.listbox3,'String',contents)
-set(handles.uitable2,'Data',d(r,:));
+set(handles.stimselectlist,'String',contents)
+set(handles.blocktable,'Data',d(r,:));
 
 
 
@@ -302,7 +311,7 @@ set(handles.uitable2,'Data',d(r,:));
 
 
 %% NOISE CLICKS TOGGLE BUTTON
-function togglebutton1_Callback(hObject, eventdata, handles)
+function noiseclicks_Callback(hObject, eventdata, handles)
 global nc
 % clear -global nc
 state = logical(get(hObject,'Value'));
@@ -313,25 +322,25 @@ if state
     rate = 10; % number of times a click will play per second
     ISI = .5; % time in secs between click trains
     reps = 2; % number of click trains per event
-    fs = str2double(get(handles.edit9,'String'));
-    filtName = get(handles.edit10,'String');
+    fs = str2double(get(handles.samplerate,'String'));
+    filtName = get(handles.filterfile,'String');
     load(filtName);
     noise = makeClicks(fs,duty,rate,dur,ISI,reps,FILT); % duration, ISI and sample rate
-    set(handles.text35,'String','Connecting to NIDAQ card');
+    set(handles.status,'String','Connecting to NIDAQ card');
     nc.s = connectToNidaq(fs,[],[0,1]);
-    set(handles.text35,'String','NIDAQ connected');
+    set(handles.status,'String','NIDAQ connected');
     nc.lh = addlistener(nc.s,'DataRequired',@(src,event)nc.s.queueOutputData(10*noise));
     nc.s.IsContinuous = true;
     nc.s.queueOutputData(noise);
     nc.s.startBackground();
-    set(handles.text35,'String','Presenting noise clicks');
+    set(handles.status,'String','Presenting noise clicks');
     disp('Presenting noise clicks')
 else
     stop(nc.s);
     delete(nc.lh);
     nc.s.IsContinuous = false;
     clear -global nc
-    set(handles.text35,'String','Stopped noise clicks, now nothing happening');
+    set(handles.status,'String','Stopped noise clicks, now nothing happening');
     disp('Stopped noise clicks')
 end
 
@@ -346,37 +355,9 @@ end
 
 
 %% BASELINE DURATION
-function edit4_Callback(hObject, eventdata, handles)
+function baselinetime_Callback(hObject, eventdata, handles)
 %
-function edit4_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-% --- Executes during object creation, after setting all properties.
-function edit5_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-%% FRAME RATE
-function edit6_Callback(hObject, eventdata, handles)
-
-% --- Executes during object creation, after setting all properties.
-function edit6_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-%% SAVE FILENAME
-function edit7_Callback(hObject, eventdata, handles)
-
-% --- Executes during object creation, after setting all properties.
-function edit7_CreateFcn(hObject, eventdata, handles)
+function baselinetime_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -384,34 +365,14 @@ end
 
 
 %% RESET NIDAQ
-function pushbutton9_Callback(hObject, eventdata, handles)
+function reset_Callback(hObject, eventdata, handles)
 daqreset
 delete(instrfindall)
 
 
 
-%% UPDATE RECORDING INFO
-function [presInfo] = pushbutton10_Callback(hObject, eventdata, handles)
-global pm
-presInfo = prepPresInfo(handles);
-contents = cellstr(get(handles.listbox5,'String'));
-projectSel = contents{get(handles.listbox5,'Value')};
-set(handles.edit7,'String',[datestr(now,'yymmdd_HHMM') '_' pm.mouse '_' projectSel '_block01.txt'])
-
-
-
-%% RECORD
-function pushbutton11_Callback(hObject, eventdata, handles)
-clear -global nc
-global nc pm
-nc.blockN = 1;
-nc.mouse = pm.mouse;
-nc.stimFolder = pm.stimFolder;
-playNextBlock(handles)
-
-
 %% PRESENT SOUND ONLY
-function pushbutton23_Callback(hObject, eventdata, handles)
+function startbutton_Callback(hObject, eventdata, handles)
 clear -global nc
 global nc pm
 nc.blockN = 1;
@@ -422,18 +383,18 @@ playNextBlock(handles)
 
 
 %% SAMPLE RATE
-function edit9_Callback(hObject, eventdata, handles)
+function samplerate_Callback(hObject, eventdata, handles)
 
-function edit9_CreateFcn(hObject, eventdata, handles)
+function samplerate_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 %% FILTER SELECTION
-function edit10_Callback(hObject, eventdata, handles)
+function filterfile_Callback(hObject, eventdata, handles)
 
-function edit10_CreateFcn(hObject, eventdata, handles)
+function filterfile_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -441,106 +402,70 @@ global pm
 set(hObject,'String',[pm.filterFolder '180516_blueAcuteSpeaker_NIDAQ_3k-80k_fs200k.mat'])
 pm.filter = get(hObject,'value');
 
-function edit10_ButtonDownFcn(hObject, eventdata, handles)
+function filterfile_ButtonDownFcn(hObject, eventdata, handles)
 global pm
 [FileName,PathName] = uigetfile([pm.filterFolder '*.mat'],'Select filter');
 if FileName~=0
-    set(handles.edit10,'String',[PathName,FileName]);
+    set(handles.filterfile,'String',[PathName,FileName]);
 end
 pm.filter = get(hObject,'value');
 
 
 
-%% WIDEFIELD RECORDING CHECKBOX
-function checkbox1_Callback(hObject, eventdata, handles)
-global saveData
-a = get(hObject,'Value');
-saveData.wfRec = a;
-if a==1
-    set(handles.text17,'String','Widefield imaging')
-else
-    set(handles.text17,'String','')
-end
-
-%% 2P RECORDING CHECKBOX
-function checkbox2_Callback(hObject, eventdata, handles)
-global saveData
-a = get(hObject,'Value');
-saveData.twoPhotonRec = a;
-if a==1
-    set(handles.text17,'String','2P imaging')
-else
-    set(handles.text17,'String','')
-end
-
-%% EPHYS RECORDING CHECKBOX
-function checkbox3_Callback(hObject, eventdata, handles)
-global saveData
-a = get(hObject,'Value');
-saveData.ephysRec = a;
-if a==1
-    set(handles.text17,'String','Electrophysiology recording')
-else
-    set(handles.text17,'String','')
-end
-
-
-
-
 %% NIDAQ SETTINGS
-function edit11_Callback(hObject, eventdata, handles) % NUMBER OF INPUT CHANNELS
-% Hints: get(hObject,'String') returns contents of edit11 as text
-%        str2double(get(hObject,'String')) returns contents of edit11 as a double
-function edit11_CreateFcn(hObject, eventdata, handles)
+function inputN_Callback(hObject, eventdata, handles) % NUMBER OF INPUT CHANNELS
+% Hints: get(hObject,'String') returns contents of inputN as text
+%        str2double(get(hObject,'String')) returns contents of inputN as a double
+function inputN_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit12_Callback(hObject, eventdata, handles) % NUMBER OF OUTPUT CHANNELS
-function edit12_CreateFcn(hObject, eventdata, handles)
+function outputN_Callback(hObject, eventdata, handles) % NUMBER OF OUTPUT CHANNELS
+function outputN_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit13_Callback(hObject, eventdata, handles) % 1ST INPUT CHANNEL
-function edit13_CreateFcn(hObject, eventdata, handles)
+function input1_Callback(hObject, eventdata, handles) % 1ST INPUT CHANNEL
+function input1_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit14_Callback(hObject, eventdata, handles)% 1ST OUTPUT CHANNEL
-function edit14_CreateFcn(hObject, eventdata, handles)
+function output1_Callback(hObject, eventdata, handles)% 1ST OUTPUT CHANNEL
+function output1_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit15_Callback(hObject, eventdata, handles) % 2ND INPUT CHANNEL
-function edit15_CreateFcn(hObject, eventdata, handles)
+function input2_Callback(hObject, eventdata, handles) % 2ND INPUT CHANNEL
+function input2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit16_Callback(hObject, eventdata, handles) % 2ND OUTPUT CHANNEL
-function edit16_CreateFcn(hObject, eventdata, handles)
+function output2_Callback(hObject, eventdata, handles) % 2ND OUTPUT CHANNEL
+function output2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit17_Callback(hObject, eventdata, handles)% 3RD INPUT CHANNEL
-function edit17_CreateFcn(hObject, eventdata, handles)
+function input3_Callback(hObject, eventdata, handles)% 3RD INPUT CHANNEL
+function input3_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit18_Callback(hObject, eventdata, handles)% 3RD OUTPUT CHANNEL
-function edit18_CreateFcn(hObject, eventdata, handles)
+function output3_Callback(hObject, eventdata, handles)% 3RD OUTPUT CHANNEL
+function output3_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 %% QUIT BUTTON
-function pushbutton15_Callback(hObject, eventdata, handles)
+function quitbutton_Callback(hObject, eventdata, handles)
 fclose('all');
 clear
 clear global
@@ -548,32 +473,32 @@ close all
 
 
 %% SAVE CONFIG
-function pushbutton20_Callback(hObject, eventdata, handles)
+function saveconfig_Callback(hObject, eventdata, handles)
 global pm
-c = cellstr(get(handles.listbox1,'String'));
-GUIdata.mouse = c{get(handles.listbox1,'Value')}; % mouse
-c = cellstr(get(handles.listbox4,'String'));
-GUIdata.person = c{get(handles.listbox4,'Value')}; % person folder
-c = cellstr(get(handles.listbox5,'String'));
-GUIdata.project = c{get(handles.listbox5,'Value')}; % project folder
-c = cellstr(get(handles.listbox3,'String'));
+c = cellstr(get(handles.mouselist,'String'));
+GUIdata.mouse = c{get(handles.mouselist,'Value')}; % mouse
+c = cellstr(get(handles.folderlist,'String'));
+GUIdata.person = c{get(handles.folderlist,'Value')}; % person folder
+c = cellstr(get(handles.projectlist,'String'));
+GUIdata.project = c{get(handles.projectlist,'Value')}; % project folder
+c = cellstr(get(handles.stimselectlist,'String'));
 GUIdata.stimuli = c;
 GUIdata.stimuliFolders = pm.wavFolders; % stimuli full filename
 %GUIdata.yaw = get(handles.edit2,'String'); % yaw
 %GUIdata.pitch = get(handles.edit1,'String'); % pitch
-GUIdata.blockReps = get(handles.uitable2,'Data'); % blocks and repeats
+GUIdata.blockReps = get(handles.blocktable,'Data'); % blocks and repeats
 [chanIn,chanOut,nIn,nOut] = getNidaqSettings(handles);
 GUIdata.nidaqInfo = {chanIn,chanOut,nIn,nOut};
 %GUIdata.recType(1) = get(handles.checkbox1,'Value'); % widefield
 %GUIdata.recType(2) = get(handles.checkbox2,'Value'); % 2P
 %GUIdata.recType(3) = get(handles.checkbox3,'Value'); % electrophys
-GUIdata.baselineDur = get(handles.edit4,'String');
+GUIdata.baselineDur = get(handles.baselinetime,'String');
 %GUIdata.opticalZoom = get(handles.text34,'String');
-GUIdata.fs = get(handles.edit9,'String');
+GUIdata.fs = get(handles.samplerate,'String');
 [filename,pathname] = uiputfile([pm.stimFolder GUIdata.person '\' GUIdata.project '\*.mat'],'save configuration');
 if ~isempty(pathname)
     save([pathname filename],'GUIdata');
-    set(handles.text35,'String','Configuration saved');
+    set(handles.status,'String','Configuration saved');
 end
 
 
@@ -581,57 +506,55 @@ end
 
 
 %% LOAD CONFIG
-function pushbutton21_Callback(hObject, eventdata, handles)
+function loadconfig_Callback(hObject, eventdata, handles)
 global pm
 [filename,pathname]=uigetfile(pm.stimFolder);
 load([pathname filename]);
-c = cellstr(get(handles.listbox1,'String'));
-set(handles.listbox1,'Value',find(strcmp(c,GUIdata.mouse))); % mouse
+c = cellstr(get(handles.mouselist,'String'));
+set(handles.mouselist,'Value',find(strcmp(c,GUIdata.mouse))); % mouse
 pm.mouse = GUIdata.mouse;
 pm.saveFolder = [pm.mouseFolder pm.mouse '\'];
-c = cellstr(get(handles.listbox4,'String'));
-set(handles.listbox4,'Value',find(strcmp(c,GUIdata.person))); % person folder
+c = cellstr(get(handles.folderlist,'String'));
+set(handles.folderlist,'Value',find(strcmp(c,GUIdata.person))); % person folder
 projects = populateProjectFolderListbox(handles);
-set(handles.listbox5,'Value',find(strcmp(projects,GUIdata.project))); % project folder
+set(handles.projectlist,'Value',find(strcmp(projects,GUIdata.project))); % project folder
 populateSelectStimListbox(handles);
 pm.wavFolders = GUIdata.stimuliFolders; % stimuli full filename
-set(handles.listbox3,'String',GUIdata.stimuli);
-set(handles.edit2,'String',GUIdata.yaw); % yaw
-set(handles.edit1,'String',GUIdata.pitch); % pitch
-set(handles.uitable2,'Data',GUIdata.blockReps); % blocks and repeats
-set(handles.edit11,'String',GUIdata.nidaqInfo{3}); % set n channels in
+set(handles.stimselectlist,'String',GUIdata.stimuli);
+set(handles.blocktable,'Data',GUIdata.blockReps); % blocks and repeats
+set(handles.inputN,'String',GUIdata.nidaqInfo{3}); % set n channels in
 chIn = [13,15,17];
 for ii=1:GUIdata.nidaqInfo{3}
     eval(sprintf('set(handles.edit%d,''String'',%d);',chIn(ii),GUIdata.nidaqInfo{1}(ii)))
 end
-set(handles.edit12,'String',GUIdata.nidaqInfo{4}); % set n channels out
+set(handles.outputN,'String',GUIdata.nidaqInfo{4}); % set n channels out
 chOut = [14,16,18];
 for ii=1:GUIdata.nidaqInfo{4}
     eval(sprintf('set(handles.edit%d,''String'',%d);',chOut(ii),GUIdata.nidaqInfo{2}(ii)))
 end
 
-set(handles.checkbox1,'Value',GUIdata.recType(1)); % widefield
-set(handles.checkbox2,'Value',GUIdata.recType(2)); % 2P
-set(handles.checkbox3,'Value',GUIdata.recType(3)); % electrophys
 
-set(handles.edit4,'String',GUIdata.baselineDur);
-set(handles.text34,'String',GUIdata.opticalZoom);
-switch GUIdata.opticalZoom
-    case '1X'
-        pushbutton13_Callback(hObject, eventdata, handles)
-    case '1.25X'
-        pushbutton14_Callback(hObject, eventdata, handles)
-end
-set(handles.edit9,'String',GUIdata.fs);
+set(handles.baselinetime,'String',GUIdata.baselineDur);
+set(handles.samplerate,'String',GUIdata.fs);
 
 
 %% ABORT BUTTON
-function pushbutton22_Callback(hObject, eventdata, handles)
+function abortbutton_Callback(hObject, eventdata, handles)
 global nc pm
-keyboard
+% keyboard
 if ~isempty(nc)
     if isfield(nc,'s')
+        
         stop(nc.s);
+        
+        % flush current state of card
+        nChans = max(size(nc.s.Channels));
+        clearStim = zeros(nc.fs*1,nChans);
+        queueOutputData(nc.s,clearStim);
+        nc.s.startBackground();
+        stop(nc.s);
+        
+        % clear listeners
         if isfield(nc,'lh')
             delete(nc.lh);
         end
@@ -658,14 +581,45 @@ if ~isempty(nc)
         exptInfo.status = 'ABORTED'; %#ok<STRNU>
         fn = fullfile(pm.saveFolder,[datestr(now,'YYmmdd_HHMMSS') '_exptInfo.mat']);
         save(fn,'exptInfo');
-        set(handles.text35,'String',['Block ' num2str(nc.blockN) ' of ' num2str(nc.nBlocks) ' saved'])
+        set(handles.status,'String',['Block ' num2str(nc.blockN) ' of ' num2str(nc.nBlocks) ' saved'])
         
         clear -global nc
         fclose('all');
-        set(handles.text35,'String','Presentation aborted, nothing happening now');
+        set(handles.status,'String','Presentation aborted, nothing happening now');
     else
-        set(handles.text35,'String','NIDAQ card not initialized, can''t abort!');
+        set(handles.status,'String','NIDAQ card not initialized, can''t abort!');
     end
 end
 
 
+
+
+% --- Executes on button press in greenlaser_button.
+function greenlaser_button_Callback(hObject, eventdata, handles)
+% hObject    handle to greenlaser_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global pm exptInfo
+
+% Hint: get(hObject,'Value') returns toggle state of greenlaser_button
+pm.laser = 'green';
+exptInfo.laser = 'green';
+% if this is selected, turn off blue
+handles.bluelaser_button.Value = 0;
+handles.status.String = 'Green laser selected.';
+getNidaqSettings(handles);
+
+% --- Executes on button press in bluelaser_button.
+function bluelaser_button_Callback(hObject, eventdata, handles)
+% hObject    handle to bluelaser_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global pm exptInfo
+
+% Hint: get(hObject,'Value') returns toggle state of bluelaser_button
+pm.laser = 'blue';
+exptInfo.laser = 'blue';
+% if this is selected, turn off green
+handles.greenlaser_button.Value = 0;
+handles.status.String = 'Blue laser selected.';
+getNidaqSettings(handles);

@@ -5,10 +5,10 @@ global nc pm %#ok<NUSED>
 % nc.playbackOnly = 0;
 % Connect to the NIDAQ
 [chanIn,chanOut] = getNidaqSettings(handles);
-nc.fs = str2double(get(handles.edit9,'String'));
-set(handles.text35,'String','Connecting to NIDAQ card');
+nc.fs = str2double(get(handles.samplerate,'String'));
+set(handles.status,'String','Connecting to NIDAQ card');
 nc.s = connectToNidaq(nc.fs,chanIn,chanOut);
-set(handles.text35,'String','NIDAQ connected');
+set(handles.status,'String','NIDAQ connected');
 
 % Add the listeners for continuous playback/acquisition
 if ~isempty(chanOut)
@@ -51,5 +51,5 @@ queueOutputData(nc.s,presInfo.triggerAcquisition);
 % Initialise the presentation/acquisition (the listeners take over after
 % triggerAcquisition has been presented
 nc.s.startBackground();
-set(handles.text35,'String',sprintf('Presenting block %02d/%02d',nc.blockN,nc.nBlocks));
+set(handles.status,'String',sprintf('Presenting block %02d/%02d',nc.blockN,nc.nBlocks));
 clear presInfo

@@ -17,17 +17,26 @@ if nc.counter <= nc.nChunks
     if isempty(nc.rm)
         stim = audioread(nc.stimFiles{nc.ff},...
             [((nc.jj-1)*nc.fs+1)-nc.sv,nc.jj*nc.fs-nc.sv]); % read in 1 second chunks
-        if length(chanOut)==3
-            stim(:,3) = audioread('temp_motionCamTrigger.wav',...
-                [((nc.jj-1)*nc.fs+1)-nc.sv,nc.jj*nc.fs-nc.sv]); % read in 1 second chunks
+        if length(chanOut)>2
+            % check for laser stim
+            if size(stim,2) < 3
+                % if no laser stim, just add zeros
+                handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
+                stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+            end
         end
         nc.jj=nc.jj+1;
     else
         indexing = [(nc.jj-1)*nc.fs+1,nc.jj*nc.fs-nc.sv];
         stim = audioread(nc.stimFiles{nc.ff},indexing); % read in 1 second chunks
         %% chris note: add in sync signal here
-        if length(chanOut)==3
-            stim(:,3) = audioread('temp_motionCamTrigger.wav',indexing);
+        if length(chanOut)>2
+            % check for laser stim
+            if size(stim,2) < 3
+                % if no laser stim, just add zeros
+                handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
+                stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+            end
         end
         nc.jj=nc.jj+1;
         nc.rm=[];
@@ -51,13 +60,16 @@ if nc.counter <= nc.nChunks
         nc.ff=nc.ff+1;
         nc.jj=1;
         if nc.ff>nc.nFiles
-            endPadding = zeros(nc.fs*6,2);
-            stim=[nc.rm*10;zeros(nc.fs-nc.sv,2);endPadding];
+            endPadding = zeros(nc.fs*6,length(chanOut));
+            stim=[nc.rm*10;zeros(nc.fs-nc.sv,length(chanOut));endPadding];
             %% chris note: add in sync signal here????
-            if length(chanOut)==3 % add in the motion cammera
-                pulse = [ones(0.001*nc.fs,1)*3;zeros(0.049*nc.fs,1)]; % 20 Hz frame rate
-                dur = round(length(stim)/nc.fs);
-                stim(:,3) = repmat(pulse,20*dur,1);
+            if length(chanOut)>2 % add in the motion cammera
+                % check for laser stim
+                if size(stim,2) < 3
+                    % if no laser stim, just add zeros
+                    stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+                    handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
+                end
             end
             queueOutputData(nc.s,stim);
             nc.counter=nc.counter+1;
@@ -96,9 +108,14 @@ else
     exptInfo.fsStim = nc.fs;
     exptInfo.presParams = nc;
     exptInfo.presDirs = pm;
-    fn = fullfile(pm.saveFolder,[datestr(now,'YYmmdd_HHMMSS') '_exptInfo.mat']);
-    save(fn,'exptInfo');
-    set(handles.text35,'String',['Block ' num2str(nc.blockN) ' of ' num2str(nc.nBlocks) ' saved'])
+    if isfield(pm,'saveFolder')
+        fn = fullfile(pm.saveFolder,[datestr(now,'YYmmdd_HHMMSS') '_exptInfo.mat']);
+        save(fn,'exptInfo');
+    else
+        warning('WARNING: no save folder specified, saving in default location: _M001\n');
+        fn = fullfile('D:\data\_M001',[datestr(now,'YYmmdd_HHMMSS') '_exptInfo.mat']);
+    end
+    set(handles.status,'String',['Block ' num2str(nc.blockN) ' of ' num2str(nc.nBlocks) ' saved'])
     nc.blockN = nc.blockN+1;
     %% NOW ADD IN A NEW FUNCTION, 'PLAYNEXTBLOCK'
     if nc.blockN<=nc.nBlocks

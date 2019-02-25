@@ -17,14 +17,14 @@ uicontrol('Style', 'pushbutton', 'String', 'Done',...
 function getDataAndClose(src,event,f,handles)
 if strcmp('escape',event.Key)
     output = f.Children(2).Data(:,2:3);
-    set(handles.uitable2,'Data',output);
+    set(handles.blocktable,'Data',output);
     prepPresInfo(handles);
     close(f)
 end
 
 function gdac(src,event,f,handles)
     output = f.Children(2).Data(:,2:3);
-    set(handles.uitable2,'Data',output);
+    set(handles.blocktable,'Data',output);
     prepPresInfo(handles);
     close(f)
 
