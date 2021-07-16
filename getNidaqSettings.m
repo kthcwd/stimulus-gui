@@ -5,24 +5,15 @@ chanOut = [];
 nIn = [];
 nOut = [];
 
-% check laser boxes
-if handles.bluelaser_button.Value == 0 && handles.greenlaser_button.Value == 0
-    % if neither laser is activated, do nothing
-elseif handles.bluelaser_button.Value == 1 && handles.greenlaser_button.Value == 1
-    % if they're both on
-    warndlg('Can''t use both lasers simultaneously.');
-elseif handles.bluelaser_button.Value == 1 && handles.greenlaser_button.Value == 0
-    % if blue laser is on
-    % set output to 3 channels
-    handles.outputN.String = '3';
-    % set 3rd nidaq channel for the blue laser (channel 2)
+% check laser box
+if handles.bluelaser_button.Value == 1
+    % if laser is on
+    % set output to 4 channels
+    handles.outputN.String = '4';
+    % set 3rd nidaq channel for the laser (channel index 2)
     handles.output3.String = '2';
-elseif handles.bluelaser_button.Value == 0 && handles.greenlaser_button.Value == 1
-    % if green laser is on
-    % set output to 3 channels
-    handles.outputN.String = '3';
-    % set 34d output channel for blue laser channel (channel 3)
-    handles.output3.String = '3';
+    % set 4th nidaq channel for the laser events (channel index 3)
+    handles.output4.String = '3';
 end
 
 nIn = str2double(get(handles.inputN,'String'));

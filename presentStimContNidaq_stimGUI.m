@@ -23,6 +23,9 @@ if nc.counter <= nc.nChunks
                 % if no laser stim, just add zeros
                 handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
                 stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+            elseif size(stim,2) == 3
+                % if there is laser stim, add laser events to channel 4
+                stim(:,4) = (stim(:,3) > 0) * .5;
             end
         end
         nc.jj=nc.jj+1;
@@ -36,6 +39,9 @@ if nc.counter <= nc.nChunks
                 % if no laser stim, just add zeros
                 handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
                 stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+            elseif size(stim,2) == 3
+                % if there is laser stim, add laser events to channel 4
+                stim(:,4) = (stim(:,3) > 0) * .5;
             end
         end
         nc.jj=nc.jj+1;
@@ -52,10 +58,24 @@ if nc.counter <= nc.nChunks
         if x~=0
             rm2 = audioread(nc.stimFiles{nc.ff},...
                 [nc.stimDur(nc.ff)-x+1,nc.stimDur(nc.ff)]);
+            if length(chanOut)>2
+                % check for laser stim
+                if size(rm2,2) < 3
+                    % if no laser stim, just add zeros
+                    handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
+                    rm2(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+                elseif size(rm2,2) == 3
+                    % if there is laser stim, add laser events to channel 4
+                    rm2(:,4) = (rm2(:,3) > 0) * .5;
+                end
+            end
         else
             rm2=[];
         end
         nc.rm=rm2;
+        
+        % padd rm
+        
         nc.sv = length(nc.rm);
         nc.ff=nc.ff+1;
         nc.jj=1;

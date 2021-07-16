@@ -22,7 +22,7 @@ function varargout = GoMouse_z(varargin)
 
 % Edit the above text to modify the response to help GoMouse_z
 
-% Last Modified by GUIDE v2.5 17-Jul-2018 14:44:12
+% Last Modified by GUIDE v2.5 13-Dec-2019 12:32:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -593,22 +593,6 @@ end
 
 
 
-
-% --- Executes on button press in greenlaser_button.
-function greenlaser_button_Callback(hObject, eventdata, handles)
-% hObject    handle to greenlaser_button (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-global pm exptInfo
-
-% Hint: get(hObject,'Value') returns toggle state of greenlaser_button
-pm.laser = 'green';
-exptInfo.laser = 'green';
-% if this is selected, turn off blue
-handles.bluelaser_button.Value = 0;
-handles.status.String = 'Green laser selected.';
-getNidaqSettings(handles);
-
 % --- Executes on button press in bluelaser_button.
 function bluelaser_button_Callback(hObject, eventdata, handles)
 % hObject    handle to bluelaser_button (see GCBO)
@@ -621,5 +605,51 @@ pm.laser = 'blue';
 exptInfo.laser = 'blue';
 % if this is selected, turn off green
 handles.greenlaser_button.Value = 0;
-handles.status.String = 'Blue laser selected.';
+handles.status.String = 'Laser output ON.';
 getNidaqSettings(handles);
+
+
+
+function input4_Callback(hObject, eventdata, handles)
+% hObject    handle to input4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of input4 as text
+%        str2double(get(hObject,'String')) returns contents of input4 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function input4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to input4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function output4_Callback(hObject, eventdata, handles)
+% hObject    handle to output4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of output4 as text
+%        str2double(get(hObject,'String')) returns contents of output4 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function output4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to output4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

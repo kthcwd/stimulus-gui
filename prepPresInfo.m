@@ -99,10 +99,10 @@ if ~isempty(d)
         presInfo.triggerAcquisition = [];
     end
     
-    if length(chanOut)==3
+    if length(chanOut)>=3
 %         pulse = [zeros(0.001*fs,1)*3;zeros(0.049*fs,1)]; % 20 Hz frame rate
 %         dur = round(length(presInfo.triggerAcquisition)/fs);
-        presInfo.triggerAcquisition(:,3) = zeros(length(presInfo.triggerAcquisition),1);
+        presInfo.triggerAcquisition(:,3:4) = zeros(length(presInfo.triggerAcquisition),2);
     end
         
     

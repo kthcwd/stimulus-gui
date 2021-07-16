@@ -6,7 +6,7 @@ global nc pm %#ok<NUSED>
 % Connect to the NIDAQ
 [chanIn,chanOut] = getNidaqSettings(handles);
 nc.fs = str2double(get(handles.samplerate,'String'));
-set(handles.status,'String','Connecting to NIDAQ card');
+set(handles.status,'String',sprintf('Connecting to NIDAQ card...\nOutput Channels: %s',chanOut));
 nc.s = connectToNidaq(nc.fs,chanIn,chanOut);
 set(handles.status,'String','NIDAQ connected');
 

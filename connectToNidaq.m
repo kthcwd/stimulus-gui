@@ -14,10 +14,10 @@ daqreset
 s = daq.createSession('ni');
 s.Rate = fs;
 for ii=1:length(channelsOut)
-    addAnalogOutputChannel(s,'dev2',channelsOut(ii),'Voltage'); % sound output
+    addAnalogOutputChannel(s,'Dev1',channelsOut(ii),'Voltage'); % sound output
 end
 for ii=1:length(channelsIn)
-    addAnalogInputChannel(s,'dev2',channelsIn(ii),'Voltage'); % frame events input
+    addAnalogInputChannel(s,'Dev1',channelsIn(ii),'Voltage'); % frame events input
     s.Channels(ii+length(channelsOut)).InputType = 'SingleEnded';
 end
 s.ExternalTriggerTimeout = 15;
