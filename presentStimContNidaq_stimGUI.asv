@@ -25,7 +25,9 @@ if nc.counter <= nc.nChunks
                 stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
             elseif size(stim,2) == 3
                 % if there is laser stim, add laser events to channel 4
-                stim(:,4) = (stim(:,3) > 0) * .5;               
+                stim(:,4) = (stim(:,3) > 0) * .5;
+            elseif size(stim,2) == 4
+                
             end
         end
         nc.jj=nc.jj+1;
@@ -77,26 +79,22 @@ if nc.counter <= nc.nChunks
         % padd rm
         
         nc.sv = length(nc.rm);
-        nc.ff = nc.ff+1;
-        nc.jj = 1;
-        if nc.ff > nc.nFiles
+        nc.ff=nc.ff+1;
+        nc.jj=1;
+        if nc.ff>nc.nFiles
             endPadding = zeros(nc.fs*6,length(chanOut));
             stim=[nc.rm*10;zeros(nc.fs-nc.sv,length(chanOut));endPadding];
             %% chris note: add in sync signal here????
             if length(chanOut)>2 % add in the motion cammera
                 % check for laser stim
-                
                 if size(stim,2) < 3
                     % if no laser stim, just add zeros
-                    handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
                     stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
-                elseif size(rm2,2) == 3
-                    % if there is laser stim, add laser events to channel 4
-                    stim(:,4) = (stim(:,3) > 0) * .5;
+                    handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
                 end
             end
             queueOutputData(nc.s,stim);
-            nc.counter = nc.counter+1;
+            nc.counter=nc.counter+1;
         end
     end
     
