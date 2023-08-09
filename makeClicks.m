@@ -3,7 +3,7 @@ function out = makeClicks(fs,duty,rate,dur,ISI,reps,FILT)
 noise = randn(1,fs*duty/rate);
 noise = noise - mean(noise);
 noise = envelopeKCW(noise,5,fs) .*10 ^ (-(10/20));
-noise = conv(noise,FILT,'same');
+% noise = conv(noise,FILT,'same');
 noise = [noise zeros(1,round(fs*(1/rate*(1-duty))))];
 noise = [repmat(noise,1,dur*rate) zeros(1,ISI*fs)];
 

@@ -22,7 +22,7 @@ function varargout = GoMouse_z(varargin)
 
 % Edit the above text to modify the response to help GoMouse_z
 
-% Last Modified by GUIDE v2.5 17-Jul-2018 14:44:12
+% Last Modified by GUIDE v2.5 08-Aug-2023 17:09:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -324,32 +324,26 @@ if state
     reps = 2; % number of click trains per event
     fs = str2double(get(handles.samplerate,'String'));
     filtName = get(handles.filterfile,'String');
-    load(filtName);
+%     load(filtName);
+    FILT = [];
     noise = makeClicks(fs,duty,rate,dur,ISI,reps,FILT); % duration, ISI and sample rate
     set(handles.status,'String','Connecting to NIDAQ card');
     nc.s = connectToNidaq(fs,[],[0,1]);
     set(handles.status,'String','NIDAQ connected');
-    nc.lh = addlistener(nc.s,'DataRequired',@(src,event)nc.s.queueOutputData(10*noise));
-    nc.s.IsContinuous = true;
-    nc.s.queueOutputData(noise);
-    nc.s.startBackground();
+%     nc.lh = addlistener(nc.s,'DataRequired',@(src,event)nc.s.queueOutputData(10*noise));
+    nc.s.ScansRequiredFcn = @(src,event)write(nc.s,noise);
+    preload(nc.s,noise);
+    start(nc.s,"Continuous");
     set(handles.status,'String','Presenting noise clicks');
     disp('Presenting noise clicks')
 else
     stop(nc.s);
-    delete(nc.lh);
-    nc.s.IsContinuous = false;
+%     delete(nc.lh);
+%     nc.s.IsContinuous = false;
     clear -global nc
     set(handles.status,'String','Stopped noise clicks, now nothing happening');
     disp('Stopped noise clicks')
 end
-
-
-
-
-
-
-
 
 
 
@@ -371,7 +365,7 @@ delete(instrfindall)
 
 
 
-%% PRESENT SOUND ONLY
+%% START PUSH BUTTON
 function startbutton_Callback(hObject, eventdata, handles)
 clear -global nc
 global nc pm
@@ -550,8 +544,8 @@ if ~isempty(nc)
         % flush current state of card
         nChans = max(size(nc.s.Channels));
         clearStim = zeros(nc.fs*1,nChans);
-        queueOutputData(nc.s,clearStim);
-        nc.s.startBackground();
+        write(nc.s,clearStim);
+        start(nc.s,"Continuous");
         stop(nc.s);
         
         % clear listeners
@@ -594,32 +588,64 @@ end
 
 
 
-% --- Executes on button press in greenlaser_button.
-function greenlaser_button_Callback(hObject, eventdata, handles)
-% hObject    handle to greenlaser_button (see GCBO)
+
+
+% --- Executes on button press in togglebutton5.
+function togglebutton5_Callback(hObject, eventdata, handles)
+% hObject    handle to togglebutton5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global pm exptInfo
 
-% Hint: get(hObject,'Value') returns toggle state of greenlaser_button
-pm.laser = 'green';
-exptInfo.laser = 'green';
-% if this is selected, turn off blue
-handles.bluelaser_button.Value = 0;
-handles.status.String = 'Green laser selected.';
-getNidaqSettings(handles);
+% Hint: get(hObject,'Value') returns toggle state of togglebutton5
+% global nc
+% % clear -global nc
+% state = logical(get(hObject,'Value'));
+% if state
+%     % make a stimulus to turn on the GREEN LED (chan 3 by default)
+%     fs = str2double(get(handles.samplerate,'String'));
+%     stim = zeros(fs*10,4);
+%     stim(:,4) = round(5/3,1);
+%     set(handles.status,'String','Connecting to NIDAQ card');
+%     nc.s = connectToNidaq(fs,[],[0,1]);
+%     set(handles.status,'String','NIDAQ connected');
+%     nc.s.ScansRequiredFcn = @(src,event)write(nc.s,stim);
+%     preload(nc.s,stim);
+%     start(nc.s,"Continuous");
+%     set(handles.status,'String','GREEN LED ON');
+%     disp('GREEN LED ON')
+% else
+%     stop(nc.s);
+%     clear -global nc
+%     set(handles.status,'String','Green LED off, now nothing happening');
+%     disp('GREEN LED OFF')
+% end
 
-% --- Executes on button press in bluelaser_button.
-function bluelaser_button_Callback(hObject, eventdata, handles)
-% hObject    handle to bluelaser_button (see GCBO)
+% --- Executes on button press in togglebutton6.
+function togglebutton6_Callback(hObject, eventdata, handles)
+% hObject    handle to togglebutton6 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global pm exptInfo
 
-% Hint: get(hObject,'Value') returns toggle state of bluelaser_button
-pm.laser = 'blue';
-exptInfo.laser = 'blue';
-% if this is selected, turn off green
-handles.greenlaser_button.Value = 0;
-handles.status.String = 'Blue laser selected.';
-getNidaqSettings(handles);
+% Hint: get(hObject,'Value') returns toggle state of togglebutton6
+global nc
+% clear -global nc
+state = logical(get(hObject,'Value'));
+if state
+    % make a stimulus to turn on the GREEN LED (chan 3 by default)
+    fs = str2double(get(handles.samplerate,'String'));
+    stim = zeros(fs*10,3);
+    stim(:,3) = round(5/3,1);
+    set(handles.status,'String','Connecting to NIDAQ card');
+    nc.s = connectToNidaq(fs,[],[0,1,2]);
+    set(handles.status,'String','NIDAQ connected');
+    nc.s.ScansRequiredFcn = @(src,event)write(nc.s,stim);
+    preload(nc.s,stim);
+    start(nc.s,"Continuous");
+    set(handles.status,'String','RED LED ON');
+    disp('RED LED ON')
+else
+    stop(nc.s);
+    clear -global nc
+    set(handles.status,'String','Green LED off, now nothing happening');
+    disp('RED LED OFF')
+end

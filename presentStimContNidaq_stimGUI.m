@@ -44,7 +44,7 @@ if nc.counter <= nc.nChunks
     stim=[nc.rm;stim];
     stim = stim*10; % Get back to full level (.wav files are saved as stim/10 so need to *10)
     
-    queueOutputData(nc.s,stim);
+    write(nc.s,stim);
     nc.counter=nc.counter+1;
     
     if nc.jj>nfc
@@ -71,7 +71,7 @@ if nc.counter <= nc.nChunks
                     handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
                 end
             end
-            queueOutputData(nc.s,stim);
+            write(nc.s,stim);
             nc.counter=nc.counter+1;
         end
     end

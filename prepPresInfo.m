@@ -1,5 +1,5 @@
 function [presInfo] = prepPresInfo(handles)
-global pm nc
+global pm
 
 %% to do list
 % 1. log file -- each time something is played, get a timestamp

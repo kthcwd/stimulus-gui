@@ -11,17 +11,17 @@ function s = connectToNidaq(fs,channelsIn,channelsOut)
 delete(instrfindall)
 daqreset
 % disp('Initialising NIDAQ card')
-s = daq.createSession('ni');
+s = daq('ni');
 s.Rate = fs;
 for ii=1:length(channelsOut)
-    addAnalogOutputChannel(s,'dev2',channelsOut(ii),'Voltage'); % sound output
+    addoutput(s,'Dev1',channelsOut(ii),'Voltage'); % sound output
 end
 for ii=1:length(channelsIn)
-    addAnalogInputChannel(s,'dev2',channelsIn(ii),'Voltage'); % frame events input
+    addinput(s,'Dev1',channelsIn(ii),'Voltage'); % frame events input
     s.Channels(ii+length(channelsOut)).InputType = 'SingleEnded';
 end
-s.ExternalTriggerTimeout = 15;
-s.NotifyWhenScansQueuedBelow = fs*.8; % samples remaining in buffer to
+% s.ExternalTriggerTimeout = 15;
+% s.NotifyWhenScansQueuedBelow = fs*.8; % samples remaining in buffer to
 %trigger the next addition to the buffer
 fs_check=s.Rate; % check sample rate
 if fs~=fs_check
