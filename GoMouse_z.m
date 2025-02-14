@@ -47,9 +47,9 @@ end
 
 %% SET VARIABLES
 global pm
-pm.stimFolder = 'D:\stimuli\';
-pm.mouseFolder = 'D:\data\';
-pm.filterFolder = 'D:\GitHub\filters\';
+pm.stimFolder = 'C:\stimuli\';
+pm.mouseFolder = 'C:\data\';
+pm.filterFolder = 'C:\Users\MarcottiLab\Documents\GitHub\filters\';
 
 
 % --- Executes just before GoMouse_z is made visible.

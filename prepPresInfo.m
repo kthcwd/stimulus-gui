@@ -91,19 +91,20 @@ if ~isempty(d)
     
     % Add trigger to start recording
     if presInfo.preStimSil > 0
+        nChannels = length(chanOut);
         triggerDuration = 0.1*fs; % in samples
-        presInfo.triggerAcquisition = [zeros(presInfo.preStimSil*fs,1),...
-            [ones(triggerDuration,1)*5;zeros((presInfo.preStimSil*fs)...
-            -triggerDuration,1)]]; % Initial trigger event to the 2P microscope
+        presInfo.triggerAcquisition = [[ones(triggerDuration,1)*5;...
+            zeros((presInfo.preStimSil*fs)-triggerDuration,1)],...
+            zeros(presInfo.preStimSil*fs,nChannels-1)]; % Initial trigger event to the 2P microscope
     else
         presInfo.triggerAcquisition = [];
     end
     
-    if length(chanOut)>=3
-%         pulse = [zeros(0.001*fs,1)*3;zeros(0.049*fs,1)]; % 20 Hz frame rate
-%         dur = round(length(presInfo.triggerAcquisition)/fs);
-        presInfo.triggerAcquisition(:,3:4) = zeros(length(presInfo.triggerAcquisition),2);
-    end
+%     if length(chanOut)>=3
+% %         pulse = [zeros(0.001*fs,1)*3;zeros(0.049*fs,1)]; % 20 Hz frame rate
+% %         dur = round(length(presInfo.triggerAcquisition)/fs);
+%         presInfo.triggerAcquisition(:,3:4) = zeros(length(presInfo.triggerAcquisition),2);
+%     end
         
     
     presInfo.stimD = ceil((sum(presInfo.nChunks)*fs+...
