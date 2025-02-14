@@ -33,19 +33,19 @@ nc.stimDur = presInfo.stimDur{nc.blockN};
 nc.preStimSil = presInfo.preStimSil;
 
 % create acquisition file
-% if ~isempty(chanIn)
-%     contents = cellstr(get(handles.listbox5,'String'));
-%     projectSel = contents{get(handles.listbox5,'Value')}; %#ok<NASGU>
-%     eval(sprintf('fn = [pm.saveFolder datestr(now,''yymmdd_HHMMSS'') ''_'' pm.mouse ''_'' projectSel ''_block%02d.txt''];',nc.blockN))
-%     nc.fid = fopen(fn,'a'); % open file for acquired data
-%     if ~exist(fn,'file')
-%         set(handles.text35,'String',['File not opened!!!'])
-%         keyboard
-%     end
-%     set(handles.edit7,'String',fn)
-% else
-%     set(handles.edit7,'String','No acquisition initiated.')
-% end
+if ~isempty(chanIn)
+    contents = cellstr(get(handles.projectlist,'String'));
+    projectSel = contents{get(handles.projectlist,'Value')}; %#ok<NASGU>
+    eval(sprintf('fn = [pm.saveFolder datestr(now,''yymmdd_HHMMSS'') ''_'' pm.mouse ''_'' projectSel ''_block%02d.txt''];',nc.blockN))
+    nc.fid = fopen(fn,'a'); % open file for acquired data
+    if ~exist(fn,'file')
+        set(handles.text35,'String',['File not opened!!!'])
+        keyboard
+    end
+    set(handles.edit7,'String',fn)
+else
+    set(handles.edit7,'String','No acquisition initiated.')
+end
 
 queueOutputData(nc.s,presInfo.triggerAcquisition);
 % Initialise the presentation/acquisition (the listeners take over after
