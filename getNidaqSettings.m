@@ -1,8 +1,8 @@
-function [chanIn,chanOut,nIn,nOut] = getNidaqSettings(handles) %#ok<STOUT>
+function [chanIn,chanOut,nIn,nOut] = getNidaqSettings(handles) 
 
 chanIn = [];
 chanOut = [];
-nIn = [];
+nIn = []; %#ok<*NASGU>
 nOut = [];
 
 % check laser boxes
