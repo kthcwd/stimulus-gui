@@ -16,7 +16,7 @@ end
 
 nIn = str2double(get(handles.inputN,'String'));
 for ii = 1:nIn
-    it = get(handles.input1,'String');
+    it = eval(sprintf('get(handles.input%d,"String")',ii));
     if contains(it,'.')
         chanIn{ii} = it; %#ok<*AGROW>
     else

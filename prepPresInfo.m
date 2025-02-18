@@ -1,15 +1,6 @@
 function [presInfo] = prepPresInfo(handles)
 global pm nc
 
-%% to do list
-% 1. log file -- each time something is played, get a timestamp
-% (approximate) and save some information about what was played when, and
-% the order, if it was aborted, etc.
-% 2. stimInfo -- check stimfiles BEFORE presentation to get information
-% about the stimulus (should we save them with a different extension to
-% make it easier to find??)
-
-
 % Get info to save to recording file
 fs = str2double(get(handles.samplerate,'String'));
 presInfo.fs = fs;
@@ -54,7 +45,7 @@ if ~isempty(d)
     % Work out how long your recording will be - so we know how many frames to
     % acquire
     stimDur = cell(1,presInfo.nBlocks);
-    for bb=1:presInfo.nBlocks
+    for bb = 1:presInfo.nBlocks
         ind = find(b==bb);
         for ff = 1:length(ind)
             stimInf = audioinfo(stimFiles{ind(ff)});
@@ -90,9 +81,9 @@ if ~isempty(d)
     if presInfo.preStimSil > 0
         nChannels = length(chanOut);
         triggerDuration = 0.1*fs; % in samples
-        presInfo.triggerAcquisition = [[ones(triggerDuration,1)*5;...
-            zeros((presInfo.preStimSil*fs)-triggerDuration,1)],...
-            zeros(presInfo.preStimSil*fs,nChannels-1)]; % Initial trigger event to the 2P microscope
+        presInfo.triggerAcquisition = [zeros(presInfo.preStimSil*fs,nChannels-1),...
+            [ones(triggerDuration,1)*5;...
+            zeros((presInfo.preStimSil*fs)-triggerDuration,1)]]; % Initial trigger event to the 2P microscope
     else
         presInfo.triggerAcquisition = [];
     end

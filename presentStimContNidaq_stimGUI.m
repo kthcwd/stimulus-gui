@@ -18,33 +18,33 @@ if nc.counter <= nc.nChunks
     if isempty(nc.rm)
         stim = audioread(nc.stimFiles{nc.ff},...
             [((nc.jj-1)*nc.fs+1)-nc.sv,nc.jj*nc.fs-nc.sv]); % read in 1 second chunks
-        if length(chanOut)>2
-            % check for laser stim
-            if size(stim,2) < 3
-                % if no laser stim, just add zeros
-                handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
-                stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
-            elseif size(stim,2) == 3
-                % if there is laser stim, add laser events to channel 4
-                stim(:,4) = (stim(:,3) > 0) * .5;               
-            end
-        end
+        % if length(chanOut)>2
+        %     % check for laser stim
+        %     if size(stim,2) < 3
+        %         % if no laser stim, just add zeros
+        %         handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
+        %         stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+        %     elseif size(stim,2) == 3
+        %         % if there is laser stim, add laser events to channel 4
+        %         stim(:,4) = (stim(:,3) > 0) * .5;               
+        %     end
+        % end
         nc.jj = nc.jj+1;
     else
         indexing = [(nc.jj-1)*nc.fs+1,nc.jj*nc.fs-nc.sv];
         stim = audioread(nc.stimFiles{nc.ff},indexing); % read in 1 second chunks
         %% chris note: add in sync signal here
-        if length(chanOut)>2
-            % check for laser stim
-            if size(stim,2) < 3
-                % if no laser stim, just add zeros
-                handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
-                stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
-            elseif size(stim,2) == 3
-                % if there is laser stim, add laser events to channel 4
-                stim(:,4) = (stim(:,3) > 0) * .5;
-            end
-        end
+        % if length(chanOut)>2
+        %     % check for laser stim
+        %     if size(stim,2) < 3
+        %         % if no laser stim, just add zeros
+        %         handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
+        %         stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+        %     elseif size(stim,2) == 3
+        %         % if there is laser stim, add laser events to channel 4
+        %         stim(:,4) = (stim(:,3) > 0) * .5;
+        %     end
+        % end
         nc.jj = nc.jj+1;
         nc.rm = [];
     end
@@ -60,17 +60,17 @@ if nc.counter <= nc.nChunks
         if x~=0
             rm2 = audioread(nc.stimFiles{nc.ff},...
                 [nc.stimDur(nc.ff)-x+1,nc.stimDur(nc.ff)]);
-            if length(chanOut)>2
-                % check for laser stim
-                if size(rm2,2) < 3
-                    % if no laser stim, just add zeros
-                    handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
-                    rm2(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
-                elseif size(rm2,2) == 3
-                    % if there is laser stim, add laser events to channel 4
-                    rm2(:,4) = (rm2(:,3) > 0) * .5;
-                end
-            end
+            % if length(chanOut)>2
+            %     % check for laser stim
+            %     if size(rm2,2) < 3
+            %         % if no laser stim, just add zeros
+            %         handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
+            %         rm2(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+            %     elseif size(rm2,2) == 3
+            %         % if there is laser stim, add laser events to channel 4
+            %         rm2(:,4) = (rm2(:,3) > 0) * .5;
+            %     end
+            % end
         else
             rm2=[];
         end
@@ -85,18 +85,18 @@ if nc.counter <= nc.nChunks
             endPadding = zeros(nc.fs*6,length(chanOut));
             stim=[nc.rm*10;zeros(nc.fs-nc.sv,length(chanOut));endPadding];
             %% chris note: add in sync signal here????
-            if length(chanOut)>2 % add in the motion cammera
-                % check for laser stim
-                
-                if size(stim,2) < 3
-                    % if no laser stim, just add zeros
-                    handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
-                    stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
-                elseif size(rm2,2) == 3
-                    % if there is laser stim, add laser events to channel 4
-                    stim(:,4) = (stim(:,3) > 0) * .5;
-                end
-            end
+            % if length(chanOut)>2 % add in the motion cammera
+            %     check for laser stim
+            % 
+            %     if size(stim,2) < 3
+            %         % if no laser stim, just add zeros
+            %         handles.status.String = 'No laser stimuli found!\nLaser will not activate!';
+            %         stim(:,3:length(chanOut)) = zeros(length(chanOut)-2,nc.fs-nc.sv);
+            %     elseif size(rm2,2) == 3
+            %         % if there is laser stim, add laser events to channel 4
+            %         stim(:,4) = (stim(:,3) > 0) * .5;
+            %     end
+            % end
             % queueOutputData(nc.s,stim);
             write(nc.s,stim)
             nc.counter = nc.counter+1;

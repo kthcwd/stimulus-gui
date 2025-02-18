@@ -40,11 +40,12 @@ if ~isempty(chanIn)
     contents = cellstr(get(handles.projectlist,'String'));
     projectSel = contents{get(handles.projectlist,'Value')}; %#ok<NASGU>
     eval(sprintf('fn = [pm.saveFolder datestr(now,''yymmdd_HHMMSS'') ''_'' pm.mouse ''_'' projectSel ''_block%02d.txt''];',nc.blockN))
-    nc.fid = fopen(fn,'a'); % open file for acquired data
-    if ~exist(fn,'file')
-        set(handles.acq_status,'String',['Acquisition file not opened!!!'])
-        keyboard
-    end
+    % nc.fid = fopen(fn,'a'); % open file for acquired data
+    nc.fid = fn;
+    % if ~exist(fn,'file')
+    %     set(handles.acq_status,'String',['Acquisition file not opened!!!'])
+    %     keyboard
+    % end
     set(handles.acq_status,'String',fn)
 else
     set(handles.acq_status,'String','No acquisition initiated.')

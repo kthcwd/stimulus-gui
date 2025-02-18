@@ -27,7 +27,7 @@ for ii = 1:length(channelsIn)
         addinput(s, deviceInfo.ID, strcat(port, '/', line),'Digital')
     else
         addinput(s, deviceInfo.ID, channelsIn{ii}, "Voltage"); % frame events input
-        s.Channels(1).TerminalConfig = 'SingleEnded';
+        s.Channels(ii).TerminalConfig = 'SingleEnded';
     end
 end
 % s.ExternalTriggerTimeout = 15;
