@@ -46,8 +46,8 @@ end
 
 
 %% SET VARIABLES
-global pm
-pm.stimFolder = 'C:\stimuli\';
+global pm %#ok<*GVMIS>
+pm.stimFolder = 'X:\wood_lab\Shared\stimuli\';
 pm.mouseFolder = 'C:\data\';
 pm.filterFolder = 'C:\Users\MarcottiLab\Documents\GitHub\filters\';
 
@@ -548,11 +548,12 @@ if ~isempty(nc)
         stop(nc.s);
         
         % flush current state of card
-        nChans = max(size(nc.s.Channels));
+        nChans = sum(contains({nc.s.Channels.Type},'AnalogOutput'));
         clearStim = zeros(nc.fs*1,nChans);
-        queueOutputData(nc.s,clearStim);
-        nc.s.startBackground();
-        stop(nc.s);
+        clear nc.s
+        % write(nc.s,clearStim);
+        % nc.s.startBackground();
+        % stop(nc.s);
         
         % clear listeners
         if isfield(nc,'lh')

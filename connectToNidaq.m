@@ -8,23 +8,33 @@ function s = connectToNidaq(fs,channelsIn,channelsOut)
 % channelsOut = [0 1 2];
 % fs = 400000;
 
-delete(instrfindall)
-daqreset
+% delete(instrfindall)
+% daqreset
 % disp('Initialising NIDAQ card')
-s = daq.createSession('ni');
+d = daqlist("ni"); % list nidaq devices
+deviceInfo = d{1, "DeviceInfo"};
+s = daq('ni');
 s.Rate = fs;
-for ii=1:length(channelsOut)
-    addAnalogOutputChannel(s,'Dev1',channelsOut(ii),'Voltage'); % sound output
+
+for ii = 1:length(channelsOut)
+    addoutput(s, deviceInfo.ID, channelsOut(ii), "Voltage") % sound output
 end
-for ii=1:length(channelsIn)
-    addAnalogInputChannel(s,'Dev1',channelsIn(ii),'Voltage'); % frame events input
-    s.Channels(ii+length(channelsOut)).InputType = 'SingleEnded';
+for ii = 1:length(channelsIn)
+    if ischar(channelsIn{ii})
+        dot = strfind(channelsIn{ii},'.');
+        port = strcat('port',channelsIn{ii}(1:dot-1));
+        line = strcat('line',channelsIn{ii}(dot+1:end));
+        addinput(s, deviceInfo.ID, strcat(port, '/', line),'Digital')
+    else
+        addinput(s, deviceInfo.ID, channelsIn{ii}, "Voltage"); % frame events input
+        s.Channels(1).TerminalConfig = 'SingleEnded';
+    end
 end
-s.ExternalTriggerTimeout = 15;
-s.NotifyWhenScansQueuedBelow = fs*.8; % samples remaining in buffer to
+% s.ExternalTriggerTimeout = 15;
+% s.NotifyWhenScansQueuedBelow = fs*.8; % samples remaining in buffer to
 %trigger the next addition to the buffer
-fs_check=s.Rate; % check sample rate
-if fs~=fs_check
+fs_check = s.Rate; % check sample rate
+if fs ~= fs_check
     disp('Sample rate not available!!!!')
     keyboard
     return

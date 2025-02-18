@@ -4,9 +4,10 @@ function presentStimContNidaq_stimGUI(src, event, handles)
 [~,chanOut] = getNidaqSettings(handles);
 
 global nc pm
-if nc.firstChunk==1
-    nc.ff=1; nc.jj=1; nc.rm=[]; nc.sv=0;
-    nc.firstChunk=0;
+
+if nc.firstChunk == 1
+    nc.ff = 1; nc.jj = 1; nc.rm = []; nc.sv = 0;
+    nc.firstChunk = 0;
 end
 
 if nc.counter <= nc.nChunks
@@ -28,7 +29,7 @@ if nc.counter <= nc.nChunks
                 stim(:,4) = (stim(:,3) > 0) * .5;               
             end
         end
-        nc.jj=nc.jj+1;
+        nc.jj = nc.jj+1;
     else
         indexing = [(nc.jj-1)*nc.fs+1,nc.jj*nc.fs-nc.sv];
         stim = audioread(nc.stimFiles{nc.ff},indexing); % read in 1 second chunks
@@ -44,13 +45,14 @@ if nc.counter <= nc.nChunks
                 stim(:,4) = (stim(:,3) > 0) * .5;
             end
         end
-        nc.jj=nc.jj+1;
-        nc.rm=[];
+        nc.jj = nc.jj+1;
+        nc.rm = [];
     end
-    stim=[nc.rm;stim];
+    stim = [nc.rm;stim];
     stim = stim*10; % Get back to full level (.wav files are saved as stim/10 so need to *10)
     
-    queueOutputData(nc.s,stim);
+    % queueOutputData(nc.s,stim);
+    write(nc.s,stim);
     nc.counter=nc.counter+1;
     
     if nc.jj>nfc
@@ -95,7 +97,8 @@ if nc.counter <= nc.nChunks
                     stim(:,4) = (stim(:,3) > 0) * .5;
                 end
             end
-            queueOutputData(nc.s,stim);
+            % queueOutputData(nc.s,stim);
+            write(nc.s,stim)
             nc.counter = nc.counter+1;
         end
     end

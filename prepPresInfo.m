@@ -8,10 +8,7 @@ global pm nc
 % 2. stimInfo -- check stimfiles BEFORE presentation to get information
 % about the stimulus (should we save them with a different extension to
 % make it easier to find??)
-% 3. sync pulses -- Maria would like us to have event pulses every second,
-% add this in as a third channel which will be the default for each
-% recording (need to swap out NIDAQ cards in this case... need another
-% output channel)
+
 
 % Get info to save to recording file
 fs = str2double(get(handles.samplerate,'String'));
