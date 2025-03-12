@@ -1,6 +1,6 @@
 function presentStimContNidaq_stimGUI(src, event, handles)
 %
-
+disp(event)
 [~,chanOut] = getNidaqSettings(handles);
 
 global nc pm
@@ -52,7 +52,7 @@ if nc.counter <= nc.nChunks
     stim = stim*10; % Get back to full level (.wav files are saved as stim/10 so need to *10)
     
     % queueOutputData(nc.s,stim);
-    write(nc.s,stim);
+    write(src,stim);
     nc.counter = nc.counter+1;
     
     if nc.jj>nfc
@@ -98,7 +98,7 @@ if nc.counter <= nc.nChunks
             %     end
             % end
             % queueOutputData(nc.s,stim);
-            write(nc.s,stim)
+            write(src,stim)
             nc.counter = nc.counter+1;
         end
     end
