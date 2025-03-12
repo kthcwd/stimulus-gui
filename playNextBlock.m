@@ -14,6 +14,7 @@ set(handles.status,'String','NIDAQ connected');
 if ~isempty(chanOut)
     % nc.lh = addlistener(nc.s,'DataRequired',@(src,event)presentStimContNidaq_stimGUI(src,event,handles));
     nc.s.ScansRequiredFcn = @(src,event)presentStimContNidaq_stimGUI(src,event,handles);
+    nc.s.ScansRequiredFcnCount = 150000;
 end
 if ~isempty(chanIn)
     % nc.la = addlistener(nc.s,'DataAvailable',@(src,event)acquireContNidaq_stimGUI(src,event,handles));

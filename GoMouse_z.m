@@ -321,7 +321,7 @@ if state
     duty = .25; % percentage of time the click will be on during rate cycle
     rate = 10; % number of times a click will play per second
     ISI = .5; % time in secs between click trains
-    reps = 2; % number of click trains per event
+    reps = 5; % number of click trains per event
     fs = str2double(get(handles.samplerate,'String'));
     filtName = get(handles.filterfile,'String');
     load(filtName);
@@ -329,16 +329,21 @@ if state
     set(handles.status,'String','Connecting to NIDAQ card');
     nc.s = connectToNidaq(fs,[],[0,1]);
     set(handles.status,'String','NIDAQ connected');
-    nc.lh = addlistener(nc.s,'DataRequired',@(src,event)nc.s.queueOutputData(10*noise));
-    nc.s.IsContinuous = true;
-    nc.s.queueOutputData(noise);
-    nc.s.startBackground();
+    nc.s.ScansRequiredFcn = @(src,event)write(nc.s,10*noise);
+    % nc.lh = addlistener(nc.s,'DataRequired',@(src,event)nc.s.queueOutputData(10*noise));
+    % nc.s.IsContinuous = true;
+    preload(nc.s,noise);
+    % nc.s.queueOutputData(noise);
+    % nc.s.startBackground();
+    nc.firstChunk = 1;
+    nc.counter = 1;
+    start(nc.s,"Continuous")
     set(handles.status,'String','Presenting noise clicks');
     disp('Presenting noise clicks')
 else
     stop(nc.s);
-    delete(nc.lh);
-    nc.s.IsContinuous = false;
+    % delete(nc.lh);
+    % nc.s.IsContinuous = false;
     clear -global nc
     set(handles.status,'String','Stopped noise clicks, now nothing happening');
     disp('Stopped noise clicks')

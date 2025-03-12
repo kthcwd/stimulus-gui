@@ -16,8 +16,8 @@ if nc.counter <= nc.nChunks
     str = sprintf('Block %02d/%02d - File %02d/%02d - Chunk %04d/%04d...\n',nc.blockN,nc.nBlocks,nc.ff,nc.nFiles,nc.jj,nfc);
     fprintf(str);
     if isempty(nc.rm)
-        stim = audioread(nc.stimFiles{nc.ff},...
-            [((nc.jj-1)*nc.fs+1)-nc.sv,nc.jj*nc.fs-nc.sv]); % read in 1 second chunks
+        indexing = [(nc.jj-1)*nc.fs+1,nc.jj*nc.fs-nc.sv];
+        stim = audioread(nc.stimFiles{nc.ff},indexing); % read in 1 second chunks
         % if length(chanOut)>2
         %     % check for laser stim
         %     if size(stim,2) < 3
@@ -53,7 +53,7 @@ if nc.counter <= nc.nChunks
     
     % queueOutputData(nc.s,stim);
     write(nc.s,stim);
-    nc.counter=nc.counter+1;
+    nc.counter = nc.counter+1;
     
     if nc.jj>nfc
         x=mod((nc.stimDur(nc.ff)+nc.sv),nc.fs);
