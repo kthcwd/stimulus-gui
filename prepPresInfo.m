@@ -1,6 +1,8 @@
 function [presInfo] = prepPresInfo(handles)
 global pm nc
 
+read_dur = nc.read_dur;
+
 % Get info to save to recording file
 fs = str2double(get(handles.samplerate,'String'));
 presInfo.fs = fs;
@@ -8,9 +10,13 @@ presInfo.FILT = get(handles.filterfile,'String');
 presInfo.mouse = pm.mouse;
 
 
-% Prepare info for presenting the stimuli
+%% Prepare info for presenting the stimuli
+
+% get names of stim files from GUI
 contents = cellstr(get(handles.stimselectlist,'String'));
-sf = strcat(pm.wavFolders,contents);
+sf = strcat(pm.wavFolders,contents); 
+
+% get info from GUI about which block stimuli are in and number of repeats
 d = get(handles.blocktable,'Data');
 if ~iscell(d)
     d = num2cell(d); % blocks and repeats
@@ -39,24 +45,24 @@ if ~isempty(d)
     stimFiles = stimFiles(blockOrder);
     presInfo.blocks = b;
     presInfo.nBlocks = length(unique(b));
-    presInfo.preStimSil = str2double(get(handles.baselinetime,'String'));
+    presInfo.preStimSilence = str2double(get(handles.baselinetime,'String'));
     presInfo.stimFiles = stimFiles;
     
     % Work out how long your recording will be - so we know how many frames to
-    % acquire
+    % acquire - this was for the 2P but is still useful to know
     stimDur = cell(1,presInfo.nBlocks);
     for bb = 1:presInfo.nBlocks
         ind = find(b==bb);
         for ff = 1:length(ind)
-            stimInf = audioinfo(stimFiles{ind(ff)});
-            set(handles.samplerate,'String',num2str(stimInf.SampleRate))
+            stimInfo = audioinfo(stimFiles{ind(ff)});
+            set(handles.samplerate,'String',num2str(stimInfo.SampleRate))
             fs = str2double(get(handles.samplerate,'String'));
             presInfo.fs = fs;
-            if stimInf.SampleRate~=fs
+            if stimInfo.SampleRate~=fs
                 disp('STIM AT WRONG SAMPLE RATE!!')
                 keyboard
             end
-            stimDur{bb}(ff) = stimInf.TotalSamples;
+            stimDur{bb}(ff) = stimInfo.TotalSamples;
         end
         
         
@@ -78,24 +84,17 @@ if ~isempty(d)
     [~,chanOut] = getNidaqSettings(handles);
     
     % Add trigger to start recording
-    if presInfo.preStimSil > 0
+    if presInfo.preStimSilence > 0
         nChannels = length(chanOut);
         triggerDuration = 0.1*fs; % in samples
-        presInfo.triggerAcquisition = [zeros(presInfo.preStimSil*fs,nChannels-1),...
+        presInfo.triggerAcquisition = [zeros(presInfo.preStimSilence*fs,nChannels-1),...
             [ones(triggerDuration,1)*5;...
-            zeros((presInfo.preStimSil*fs)-triggerDuration,1)]]; % Initial trigger event to the 2P microscope
+            zeros((presInfo.preStimSilence*fs)-triggerDuration,1)]]; % Initial trigger event to the 2P microscope
     else
         presInfo.triggerAcquisition = [];
-    end
-    
-%     if length(chanOut)>=3
-% %         pulse = [zeros(0.001*fs,1)*3;zeros(0.049*fs,1)]; % 20 Hz frame rate
-% %         dur = round(length(presInfo.triggerAcquisition)/fs);
-%         presInfo.triggerAcquisition(:,3:4) = zeros(length(presInfo.triggerAcquisition),2);
-%     end
-        
+    end      
     
     presInfo.stimD = ceil((sum(presInfo.nChunks)*fs+...
-        (presInfo.preStimSil*fs*presInfo.nBlocks)+...
+        (presInfo.preStimSilence*fs*presInfo.nBlocks)+...
         5*fs*presInfo.nBlocks)/fs); % total stimulus duration
 end

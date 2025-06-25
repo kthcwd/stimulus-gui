@@ -8,9 +8,10 @@ noise = [noise zeros(1,round(fs*(1/rate*(1-duty))))];
 noise = [repmat(noise,1,dur*rate) zeros(1,ISI*fs)];
 
 ch1 = repmat(noise,1,reps);
-ch2 = [ones(1,.005*fs)*.5 zeros(1,(reps*(dur+ISI)-.005)*fs)];
+ch2 = zeros(size(ch1));
+ch3 = [ones(1,.005*fs)*.5 zeros(1,(reps*(dur+ISI)-.005)*fs)];
 
-out = [ch1' ch2'];
+out = [ch1' ch2' ch3'];
 
 
 

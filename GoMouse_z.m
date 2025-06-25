@@ -47,7 +47,7 @@ end
 
 %% SET VARIABLES
 global pm %#ok<*GVMIS>
-pm.stimFolder = 'X:\wood_lab\Shared\stimuli\';
+pm.stimFolder = 'C:\Users\MarcottiLab\Documents\stimuli\';
 pm.mouseFolder = 'C:\data\';
 pm.filterFolder = 'C:\Users\MarcottiLab\Documents\GitHub\filters\';
 
@@ -214,7 +214,7 @@ set(handles.blocktable,'Data',nd)
 function removestim_Callback(hObject, eventdata, handles)
 global pm
 contents = cellstr(get(handles.stimselectlist,'String'));
-if length(contents)==1
+if isscalar(contents)
     contents{1} = 'Listbox';
 else
     rm = get(handles.stimselectlist,'Value');
@@ -321,13 +321,13 @@ if state
     duty = .25; % percentage of time the click will be on during rate cycle
     rate = 10; % number of times a click will play per second
     ISI = .5; % time in secs between click trains
-    reps = 5; % number of click trains per event
+    reps = 1; % number of click trains per event
     fs = str2double(get(handles.samplerate,'String'));
     filtName = get(handles.filterfile,'String');
-    load(filtName);
-    noise = makeClicks(fs,duty,rate,dur,ISI,reps,FILT); % duration, ISI and sample rate
+    FILT = load(filtName);
+    noise = makeClicks(fs,duty,rate,dur,ISI,reps,FILT.FILT); % duration, ISI and sample rate
     set(handles.status,'String','Connecting to NIDAQ card');
-    nc.s = connectToNidaq(fs,[],[0,1]);
+    nc.s = connectToNidaq(fs,[],[0,1,2]);
     set(handles.status,'String','NIDAQ connected');
     nc.s.ScansRequiredFcn = @(src,event)write(nc.s,10*noise);
     % nc.lh = addlistener(nc.s,'DataRequired',@(src,event)nc.s.queueOutputData(10*noise));
@@ -372,17 +372,18 @@ end
 %% RESET NIDAQ
 function reset_Callback(hObject, eventdata, handles)
 daqreset
-delete(instrfindall)
+% delete(instrfindall)
 
 
 
-%% PRESENT SOUND ONLY
+%% START BUTTON
 function startbutton_Callback(hObject, eventdata, handles)
 clear -global nc
 global nc pm
 nc.blockN = 1;
 nc.mouse = pm.mouse;
 nc.stimFolder = pm.stimFolder;
+nc.recTime = datetime('now','format','yyMMdd_HHmmSS');
 playNextBlock(handles)
 
 
@@ -472,7 +473,7 @@ end
 %% QUIT BUTTON
 function quitbutton_Callback(hObject, eventdata, handles)
 fclose('all');
-clear
+clear %#ok<CLEAR0ARGS>
 clear global
 close all
 
@@ -514,7 +515,7 @@ end
 function loadconfig_Callback(hObject, eventdata, handles)
 global pm
 [filename,pathname]=uigetfile(pm.stimFolder);
-load([pathname filename]);
+load([pathname filename]); %#ok<LOAD>
 c = cellstr(get(handles.mouselist,'String'));
 set(handles.mouselist,'Value',find(strcmp(c,GUIdata.mouse))); % mouse
 pm.mouse = GUIdata.mouse;
@@ -553,8 +554,8 @@ if ~isempty(nc)
         stop(nc.s);
         
         % flush current state of card
-        nChans = sum(contains({nc.s.Channels.Type},'AnalogOutput'));
-        clearStim = zeros(nc.fs*1,nChans);
+       
+        
         clear nc.s
         % write(nc.s,clearStim);
         % nc.s.startBackground();
@@ -571,22 +572,22 @@ if ~isempty(nc)
         % save everything
         exptInfo.mouse = nc.mouse;
         exptInfo.stimFiles = nc.stimFiles;
-        b = unique(exptInfo.stimFiles);
-        for ii=1:length(b)
+        % b = unique(exptInfo.stimFiles);
+        for ii=1:length(nc.stimFiles)
             try
-                a = load([b{ii}(1:end-4) '_stimInfo.mat']);
+                a = load([nc.stimFiles{ii}(1:end-4) '_stimInfo.mat']);
                 exptInfo.stimInfo{ii} = a;%.stimInfo;
             catch
                 exptInfo.stimInfo{ii} = 'Could not find stimInfo';
             end
         end
-        exptInfo.preStimSilence = nc.preStimSil;
+        exptInfo.preStimSilence = nc.preStimSilence;
         exptInfo.fsStim = nc.fs;
         exptInfo.presParams = nc;
         exptInfo.presDirs = pm;
-        exptInfo.status = 'ABORTED'; %#ok<STRNU>
-        fn = fullfile(pm.saveFolder,[datestr(now,'YYmmdd_HHMMSS') '_exptInfo.mat']);
-        save(fn,'exptInfo');
+        exptInfo.status = 'ABORTED';
+        fn = fullfile(pm.saveFolder,strcat(string(nc.recTime), '_exptInfo.mat'));
+        save(fn,'-struct','exptInfo');
         set(handles.status,'String',['Block ' num2str(nc.blockN) ' of ' num2str(nc.nBlocks) ' saved'])
         
         clear -global nc

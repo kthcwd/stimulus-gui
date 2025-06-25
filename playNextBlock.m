@@ -24,7 +24,8 @@ end
 % nc.s.IsContinuous = true; % set nidaq to continuous mode
 
 % start counters
-nc.counter=1; 
+nc.counter = 1; 
+nc.read_dur = round(nc.fs*0.5);
 
 % Get info about what to present
 presInfo = prepPresInfo(handles);
@@ -34,13 +35,13 @@ nc.nChunks = presInfo.nChunks(nc.blockN);
 nc.stimFiles = presInfo.stimFiles(presInfo.blocks==nc.blockN);
 nc.nFiles = length(nc.stimFiles);
 nc.stimDur = presInfo.stimDur{nc.blockN};
-nc.preStimSil = presInfo.preStimSil;
+nc.preStimSilence = presInfo.preStimSilence;
 
 % create acquisition file
 if ~isempty(chanIn)
     contents = cellstr(get(handles.projectlist,'String'));
     projectSel = contents{get(handles.projectlist,'Value')}; %#ok<NASGU>
-    eval(sprintf('fn = [pm.saveFolder datestr(now,''yymmdd_HHMMSS'') ''_'' pm.mouse ''_'' projectSel ''_block%02d.txt''];',nc.blockN))
+    eval(sprintf('fn = strcat(pm.saveFolder,string(nc.recTime), ''_'', pm.mouse, ''_'', projectSel, ''_block%02d.txt'');',nc.blockN))
     % nc.fid = fopen(fn,'a'); % open file for acquired data
     nc.fid = fn;
     % if ~exist(fn,'file')
