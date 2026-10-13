@@ -47,9 +47,9 @@ end
 
 %% SET VARIABLES
 global pm %#ok<*GVMIS>
-pm.stimFolder = 'C:\Users\MarcottiLab\Documents\stimuli\';
+pm.stimFolder = 'C:\Users\wood-admin\Documents\stimuli\';
 pm.mouseFolder = 'C:\data\';
-pm.filterFolder = 'C:\Users\MarcottiLab\Documents\GitHub\filters\';
+pm.filterFolder = 'C:\Users\wood-admin\Documents\calibration\';
 
 
 % --- Executes just before GoMouse_z is made visible.
@@ -405,7 +405,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 global pm
-set(hObject,'String',[pm.filterFolder '180516_blueAcuteSpeaker_NIDAQ_3k-80k_fs200k.mat'])
+set(hObject,'String',[pm.filterFolder '20261013_fs200kHz_3-48kHz70dB_leftspkr.mat'])
 pm.filter = get(hObject,'value');
 
 function filterfile_ButtonDownFcn(hObject, eventdata, handles)
@@ -432,6 +432,7 @@ function outputN_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+set(hObject,'String','3')
 
 function input1_Callback(hObject, eventdata, handles) % 1ST INPUT CHANNEL
 function input1_CreateFcn(hObject, eventdata, handles)
@@ -468,6 +469,7 @@ function output3_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+set(hObject,'String','2')
 
 
 %% QUIT BUTTON
